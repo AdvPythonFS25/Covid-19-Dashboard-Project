@@ -15,24 +15,24 @@ Users will be able to interact with data, view summary statistics, and explore t
 
 ## Features 
 - 📊 **Basic statistics**  
-| Statistic                                      | Accepted input                |
-| --------------------------------------------- | ----------------------------- |
-| Death Rate (CFR)                              | Country code (2-letter)       |
-| Rt (Reproduction Number)                      | Country code (2-letter)       |
-| Average Daily Cases                           | Country code (2-letter)       |
-| Average Daily Deaths                          | Country code (2-letter)       |
-| Regional Death Rate                           | WHO region                    |
-| Vaccination Coverage                          | ISO3 code (3-letter)          |
-| Booster Dose Rate                             | ISO3 code (3-letter)          |
-| Total Vaccination Summary                     | ISO3 code (3-letter)          |
-| Vaccine Authorisations by ISO3                | ISO3 code (3-letter)          |
-| Vaccine Authorisations by Product Name        | Vaccine product name          |
-| Average Weekly Hospitalisations               | ISO3 code (3-letter)          |
-| Average Monthly Hospitalisations              | ISO3 code (3-letter)          |
-| Daily Time-Series                             | Country code (2-letter)       |
-| Monthly Deaths by Age Group (countries)       | ISO3 code (3-letter)          |
-| Monthly Deaths by Age Group (income)          | World-Bank income group       |
-| Monthly Deaths by Age Group (WHO region)      | WHO region                    |
+| Statistic | Accepted input |
+| :---------: | :---------------: |
+| Death Rate (CFR) | Country code (2-letter)|
+| Rt (Reproduction Number)| Country code (2-letter)|
+| Average Daily Cases | Country code (2-letter) |
+| Average Daily Deaths | Country code (2-letter) |
+| Regional Death Rate | WHO region |
+| Vaccination Coverage | ISO3 code (3-letter) |
+| Booster Dose Rate | ISO3 code (3-letter) |
+| Total Vaccination Summary | ISO3 code (3-letter) |
+| Vaccine Authorisations by ISO3 | ISO3 code (3-letter) |
+| Vaccine Authorisations by Product Name | Vaccine product name |
+| Average Weekly Hospitalisations | ISO3 code (3-letter) |
+| Average Monthly Hospitalisations | ISO3 code (3-letter) |
+| Daily Time-Series | Country code (2-letter) |
+| Monthly Deaths by Age Group (countries) | ISO3 code (3-letter) |
+| Monthly Deaths by Age Group (income) | World-Bank income group |
+| Monthly Deaths by Age Group (WHO region) | WHO region |
 
 - 📈 **Data Visualization**  
   Users will be able to explore trend such as: 
