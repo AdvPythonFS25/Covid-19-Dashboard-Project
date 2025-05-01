@@ -16,11 +16,7 @@ import seaborn as sns
 # ---------------------------------------------INPUT FUNCTIONS--------------------------------------------#
 # ---------------------------------------------INPUT FUNCTIONS--------------------------------------------#
 # ---------------------------------------------INPUT FUNCTIONS--------------------------------------------#
-# Nihat Ömer Karaca
-# NEW USER INPUT 27.4.2025
-#######################################################################
-# 1. USER-INPUT MENU
-#######################################################################
+
 def getUserInput():
    
 
@@ -46,7 +42,7 @@ def getUserInput():
 
     stat_labels = {
         'DR': 'Death Rate (CFR)',
-        'RT': 'Rt (Reproduction Number)',
+        'RT': 'Rt (Reproduction Number) not working yet',
         'AVG_CASES': 'Average Daily Cases',
         'AVG_DEATHS': 'Average Daily Deaths',
         'REGIONAL_DR': 'Regional Death Rate',
@@ -87,8 +83,8 @@ def getUserInput():
         'AVG_HOSP_MONTH': ['1'],
         'TIME_SERIES': ['2'],
         'AGE_DEATH_ANALYSIS': ['1'],
-        'AGE_DEATH_INCOME': ['5'],  # NEW
-        'AGE_DEATH_REGION': ['3'],  # NEW
+        'AGE_DEATH_INCOME': ['5'],
+        'AGE_DEATH_REGION': ['3'],  
     }
 
     # ── b) main menu ────────────────────────────────────────────────────
@@ -117,7 +113,6 @@ def getUserInput():
 
     stat_code = stat_map[number]
 
-    # ── c) identifier type ──────────────────────────────────────────────
     input_type = input(
         "\nChoose identifier type:\n"
         " 1 – ISO3 code\n"
@@ -133,12 +128,10 @@ def getUserInput():
             f"Allowed: {', '.join(allowed_input_map[stat_code])} → "
         )
 
-    # ── d) identifiers themselves ───────────────────────────────────────
     ids = [v.strip() for v in input("\nEnter values (comma-separated): ").split(",") if v.strip()]
     if not ids:
-        ids = ['USA']  # sensible default
+        ids = ['USA']  
 
-    # ── e) date range (where needed) ────────────────────────────────────
     date_needed = stat_code in {
         'AVG_CASES', 'AVG_DEATHS', 'AVG_HOSP_WEEK', 'AVG_HOSP_MONTH',
         'TIME_SERIES', 'AGE_DEATH_ANALYSIS', 'AGE_DEATH_INCOME', 'AGE_DEATH_REGION'
@@ -176,15 +169,9 @@ def getUserInput():
         "data_wanted": data_wanted,
     }
 
-
-#######################################################################
-# 2. DISPATCHER
-#######################################################################
+    # Looks at the chosen statistic and calls the matching helper.
+    # Returns either a Series or a DataFrame ready for plotting/printing.
 def dispatchUserQuery(user_input, dfs):
-    """
-    Looks at the chosen statistic and calls the matching helper.
-    Returns either a Series or a DataFrame ready for plotting/printing.
-    """
 
     stat = user_input["stat"]
     input_type = user_input["input_type"]
@@ -240,7 +227,6 @@ def dispatchUserQuery(user_input, dfs):
         )
 
     elif stat == "TIME_SERIES" and input_type == "2":
-        # pull, clean and pivot so each country is its own column
         raw = timeIntervalData(
             df=global_daily,
             df_array=values,
@@ -251,7 +237,6 @@ def dispatchUserQuery(user_input, dfs):
             data_wanted=data_wanted
         )
 
-        # make numeric + fill NaNs per country
         raw[data_wanted] = (
             pd.to_numeric(raw[data_wanted], errors="coerce")
             .groupby(raw["Country_code"])
@@ -278,16 +263,13 @@ def dispatchUserQuery(user_input, dfs):
         return None
 
 
-#######################################################################
-# 3. PLOTTER
-#######################################################################
+#General plot function to ddecide whether the returned data is plotted in a certain way
 
 def plotResult(result, user_input):
-    """
-    Decides whether to draw a bar chart (Series / 1-col DF) or
-    a line chart (time series DataFrame).  Uses barGraph / lineGraph
-    helpers you already defined.
-    """
+    
+    #Decides whether to draw a bar chart (Series / 1-col DF) or
+    #a line chart (time series DataFrame).  Uses barGraph / lineGraph
+    #helpers you already defined.
 
     stat_titles = {
         "AVG_CASES": "Average Daily Cases",
@@ -376,19 +358,15 @@ def plotAgeGroupData(df, title):
     # Create a figure with appropriate size
     fig, ax = plt.subplots(figsize=(14, 8))
 
-    # Get unique countries and age groups
     country_groups = df_plot[country_col].unique()
 
     # Group by country and age group, and sum deaths
     grouped_data = df_plot.groupby([country_col, age_col])[value_col].sum().reset_index()
-
-    # Set the width for each bar
     bar_width = 0.15
 
     # Set position for bar groups (one position for each country)
     positions = np.arange(len(country_groups))
 
-    # Dictionary to store x positions for labels
     country_positions = {}
 
     # Define the custom order for age groups
@@ -424,9 +402,7 @@ def plotAgeGroupData(df, title):
         for j, country in enumerate(country_groups):
             country_data = age_data[age_data[country_col] == country]
 
-            # Only add position if we have data for this country and age group
             if not country_data.empty:
-                # Calculate position: base position + offset for this age group
                 pos = j + (i - len(ordered_age_groups) / 2 + 0.5) * bar_width
                 x.append(pos)
                 heights.append(country_data[value_col].values[0])
@@ -443,7 +419,6 @@ def plotAgeGroupData(df, title):
     ax.set_ylabel('Number of Deaths', fontsize=12, fontweight='bold')
     ax.set_title(title, fontsize=14, fontweight='bold')
 
-    # Set x-ticks at the center of each country's group
     ax.set_xticks(positions)
     ax.set_xticklabels(country_groups, fontsize=10, rotation=45, ha='right')
 
@@ -462,25 +437,6 @@ def plotAgeGroupData(df, title):
 
     # Show plot
     plt.show()
-
-
-#######################################################################
-# 4. USAGE (same as before)
-#######################################################################
-
-# user_input = getUserInput()
-# dfs = {
-#     "global_daily"        : GlobalDailyDF,
-#     "global_hosp"         : GlobalHospDF,   # NEW
-#     "vaccination_data"    : vaccinationDF,
-#     "vaccination_metadata": vaccinationmetaDF,
-#     "table_data"          : GlobalTableDF
-# }
-# result = dispatchUserQuery(user_input, dfs)
-# if result is not None:
-#     print("\n📊 Result:\n", result)
-#     if input("\nPlot? (y/n): ").strip().lower() == 'y':
-#         plotResult(result, user_input)
 # ---------------------------------------------INPUT FUNCTIONS--------------------------------------------#
 # ---------------------------------------------INPUT FUNCTIONS--------------------------------------------#
 # ---------------------------------------------INPUT FUNCTIONS--------------------------------------------#
@@ -521,11 +477,6 @@ def barGraph(statistical_data, x_axis_label, y_axis_label, title, error_data=Non
     sns.despine()
     plt.tight_layout()
     plt.show()
-
-
-import matplotlib.pyplot as plt
-import numpy as np
-import seaborn as sns
 
 
 # NOT FINISHED YET
@@ -1192,8 +1143,6 @@ def deaths_by_age_group_country(df, ISO3_countries, start_date=None, end_date=No
 
     # Group by country and age group, then sum the deaths
     result = df_countries.groupby(["Country_code", "Agegroup"])["Deaths"].sum()
-
-    # Add country names for better readability in the plot
     return result
 
 
@@ -1276,9 +1225,9 @@ result = dispatchUserQuery(user_input, dfs)
 # If result is valid, show it and optionally plot it
 # Dispatch and compute result
 if result is not None:
-    print("\n📊 Statistical result:")
+    print("\nStatistical result:")
     print(result)
-    print(f"\nℹ️ Type of result: {type(result)}")
+    print(f"\nType of result: {type(result)}")
 
     plot_choice = input("\nWould you like to visualize this data as a bar graph? (y/n): ").strip().lower()
 
