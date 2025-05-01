@@ -707,7 +707,7 @@ def deathRateCountry(df, country_codes):
 
     df_latest["Death Rate"] = df_latest["Cumulative_deaths"] / df_latest["Cumulative_cases"] * 100
 
-    return df_latest[["Country", "Death Rate"]]
+    return df_latest["Death Rate"]
 
 
 # Gets average death rate for all countries existed in daily data
