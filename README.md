@@ -14,9 +14,10 @@ This project aims to create a reporting tool for the Covid-19 outbreak that allo
 Users will be able to interact with data, view summary statistics, and explore trends through visualisations. 
 
 ## Features 
-- 📊 **Basic statistics**  
+📊 **Basic statistics**  
+
 | Statistic | Accepted input |
-| :---------: | :---------------: |
+| :------ | :---- |
 | Death Rate (CFR) | Country code (2-letter)|
 | Rt (Reproduction Number)| Country code (2-letter)|
 | Average Daily Cases | Country code (2-letter) |
@@ -28,11 +29,13 @@ Users will be able to interact with data, view summary statistics, and explore t
 | Vaccine Authorisations by ISO3 | ISO3 code (3-letter) |
 | Vaccine Authorisations by Product Name | Vaccine product name |
 | Average Weekly Hospitalisations | ISO3 code (3-letter) |
-| Average Monthly Hospitalisations | ISO3 code (3-letter) |
+| Average Monthly Hospitalisations | ISO3 code (3-letter) to |
 | Daily Time-Series | Country code (2-letter) |
 | Monthly Deaths by Age Group (countries) | ISO3 code (3-letter) |
 | Monthly Deaths by Age Group (income) | World-Bank income group |
 | Monthly Deaths by Age Group (WHO region) | WHO region |
+
+[Country to ISO3 or ISO2 conversion chart](https://www.iban.com/country-codes)
 
 - 📈 **Data Visualization**  
   Users will be able to explore trend such as: 
