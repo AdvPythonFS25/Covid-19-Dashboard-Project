@@ -89,12 +89,12 @@ def getUserInput():
 
     # ── b) main menu ────────────────────────────────────────────────────
     number = input(
-        "Select statistic to compute:\n"
-        "  1  – Death Rate (CFR)\n"
+        "Select statistic to compute: example usage ISO3: TUR,USA,FRA   Country code : TR,US,FR    Who region : AMR,EUR    Income group: LIC,UMC\n"
+        "  1  – Death Rate (CFR) (country code)\n"
         "  2  – Rt (Effective Reproduction Number)\n"
-        "  3  – Average Daily Cases\n"
-        "  4  – Average Daily Deaths\n"
-        "  5  – Regional Death Rate\n"
+        "  3  – Average Daily Cases (country code)\n"
+        "  4  – Average Daily Deaths (country code)\n"
+        "  5  – Regional Death Rate (country code)\n"
         "  6  – Vaccination Coverage  (ISO3)\n"
         "  7  – Booster Dose Rate     (ISO3)\n"
         "  8  – Total Vaccination Summary (ISO3)\n"
@@ -102,7 +102,7 @@ def getUserInput():
         " 10  – # Vaccine Authorisations by Product\n"
         " 11  – Average Weekly Hospitalisations (ISO3)\n"
         " 12  – Average Monthly Hospitalisations (ISO3)\n"
-        " 13  – Daily Time-Series\n"
+        " 13  – Daily Time-Series (country code)\n"
         " 14  – Monthly Deaths by Age Group (countries)\n"
         " 15  – Monthly Deaths by Age Group (income groups)\n"
         " 16  – Monthly Deaths by Age Group (WHO regions)\n"
