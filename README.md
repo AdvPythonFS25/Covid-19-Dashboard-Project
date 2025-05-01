@@ -40,6 +40,7 @@ Users will be able to interact with data, view summary statistics, and explore t
 - 📈 **Data Visualization**  
   Users will be able to explore trend such as: 
   - Infections and deaths over time
+  - Note: Even tough some data visualizations are possible to see it's not finished yet.
   - Deaths across counrties or regions  
  ... through visualisations. (NOTE: in progess of being implemented...)
 
