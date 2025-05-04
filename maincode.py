@@ -1,13 +1,9 @@
 from __future__ import annotations
 from calendar import month
 from copy import deepcopy
-import openai
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-import seaborn as sns
-import matplotlib.pyplot as plt
-import numpy as np
 import seaborn as sns
 
 
@@ -18,8 +14,6 @@ import seaborn as sns
 # ---------------------------------------------INPUT FUNCTIONS--------------------------------------------#
 
 def getUserInput():
-   
-
     # ── a) codes and labels ─────────────────────────────────────────────
     stat_map = {
         '1': 'DR',
@@ -84,7 +78,7 @@ def getUserInput():
         'TIME_SERIES': ['2'],
         'AGE_DEATH_ANALYSIS': ['1'],
         'AGE_DEATH_INCOME': ['5'],
-        'AGE_DEATH_REGION': ['3'],  
+        'AGE_DEATH_REGION': ['3'],
     }
 
     # ── b) main menu ────────────────────────────────────────────────────
@@ -130,7 +124,7 @@ def getUserInput():
 
     ids = [v.strip() for v in input("\nEnter values (comma-separated): ").split(",") if v.strip()]
     if not ids:
-        ids = ['USA']  
+        ids = ['USA']
 
     date_needed = stat_code in {
         'AVG_CASES', 'AVG_DEATHS', 'AVG_HOSP_WEEK', 'AVG_HOSP_MONTH',
@@ -171,8 +165,9 @@ def getUserInput():
 
     # Looks at the chosen statistic and calls the matching helper.
     # Returns either a Series or a DataFrame ready for plotting/printing.
-def dispatchUserQuery(user_input, dfs):
 
+
+def dispatchUserQuery(user_input, dfs):
     stat = user_input["stat"]
     input_type = user_input["input_type"]
     values = user_input["values"]
@@ -237,13 +232,15 @@ def dispatchUserQuery(user_input, dfs):
             data_wanted=data_wanted
         )
 
+        if raw is None or raw.empty:
+            print("No data found or the data column name is not valid.")
+            return None
+
         raw[data_wanted] = (
             pd.to_numeric(raw[data_wanted], errors="coerce")
             .groupby(raw["Country_code"])
             .transform(lambda s: s.fillna(s.mean()))
         )
-        print("If there is nan data it is replaced with overall average for that country.")
-
         return raw.pivot(index="Date_reported",
                          columns="Country_code",
                          values=data_wanted)
@@ -263,13 +260,12 @@ def dispatchUserQuery(user_input, dfs):
         return None
 
 
-#General plot function to ddecide whether the returned data is plotted in a certain way
+# General plot function to ddecide whether the returned data is plotted in a certain way
 
 def plotResult(result, user_input):
-    
-    #Decides whether to draw a bar chart (Series / 1-col DF) or
-    #a line chart (time series DataFrame).  Uses barGraph / lineGraph
-    #helpers you already defined.
+    # Decides whether to draw a bar chart (Series / 1-col DF) or
+    # a line chart (time series DataFrame).  Uses barGraph / lineGraph
+    # helpers you already defined.
 
     stat_titles = {
         "AVG_CASES": "Average Daily Cases",
@@ -325,118 +321,60 @@ def plotResult(result, user_input):
         print("❌ Unsupported data type for plotting.")
 
 
-# New helper function to plot age group data
 def plotAgeGroupData(df, title):
 
-    # If we have a MultiIndex, reset it to get countries as a column
-    if isinstance(df.index, pd.MultiIndex):
-        df_plot = df.reset_index()
-    else:
-        df_plot = df.copy()
 
-    # Determine which columns contain country and age group information
-    country_col = None
-    if 'Country_code' in df_plot.columns:
-        country_col = 'Country_code'
-    elif 'Country' in df_plot.columns:
-        country_col = 'Country'
-    elif 'level_0' in df_plot.columns:  # For MultiIndex after reset_index
-        country_col = 'level_0'
+    df_plot = df.copy()           # just in case
+    if isinstance(df_plot, pd.Series):
+        df_plot = df_plot.reset_index()
 
-    age_col = None
-    if 'Agegroup' in df_plot.columns:
-        age_col = 'Agegroup'
-    elif 'level_1' in df_plot.columns:  # For MultiIndex after reset_index
-        age_col = 'level_1'
+    entity_col = 'Group'          # x-axis groups
+    age_col    = 'Agegroup'       # hue
+    value_col  = 'Deaths'         # bar height
 
-    value_col = 'Deaths' if 'Deaths' in df_plot.columns else df_plot.columns[-1]
-
-    if country_col is None or age_col is None:
-        print("Could not identify country or age group columns. Please check your data format.")
+    if not all(c in df_plot.columns for c in [entity_col, age_col, value_col]):
+        print("Expected columns missing – got:", df_plot.columns.tolist())
         return
 
-    # Create a figure with appropriate size
-    fig, ax = plt.subplots(figsize=(14, 8))
-
-    country_groups = df_plot[country_col].unique()
-
-    # Group by country and age group, and sum deaths
-    grouped_data = df_plot.groupby([country_col, age_col])[value_col].sum().reset_index()
+    # ── plotting ──────────────────────────────────────────────────────
     bar_width = 0.15
+    entities  = df_plot[entity_col].unique()
+    ages_pref = ['0_4', '5_14', '15_64', '65+']
+    ages      = [a for a in ages_pref if a in df_plot[age_col].unique()] + \
+                [a for a in df_plot[age_col].unique() if a not in ages_pref]
 
-    # Set position for bar groups (one position for each country)
-    positions = np.arange(len(country_groups))
+    colors = ['#4B0082', '#32CD32', '#1E90FF', '#FFD700']
 
-    country_positions = {}
+    fig, ax = plt.subplots(figsize=(14, 8))
+    positions = np.arange(len(entities))
 
-    # Define the custom order for age groups
-    # If we find standard age group names, use a predefined order
-    age_groups_in_data = sorted(df_plot[age_col].unique())
+    for i, age in enumerate(ages):
+        sub = df_plot[df_plot[age_col] == age]
+        heights = [sub.loc[sub[entity_col] == e, value_col].sum() for e in entities]
+        x = positions + (i - len(ages)/2 + 0.5) * bar_width
 
-    # Define the preferred order
-    preferred_order = ['0_4', '5_14', '15_64', '65+']
+        bars = ax.bar(x, heights,
+                      width=bar_width,
+                      label=age,
+                      color=colors[i % len(colors)],
+                      edgecolor='black',
+                      linewidth=0.5)
 
-    # Filter and order age groups based on data availability
-    ordered_age_groups = []
-    for age in preferred_order:
-        if age in age_groups_in_data:
-            ordered_age_groups.append(age)
+        # NEW: add the numeric labels
+        ax.bar_label(bars, labels=[f"{h:.0f}" for h in heights],
+                     padding=3, fontsize=8)
 
-    # Add any remaining age groups that weren't in our preferred list
-    for age in age_groups_in_data:
-        if age not in ordered_age_groups:
-            ordered_age_groups.append(age)
-
-    # Custom color map for age groups, in the requested order
-    colors = ['#4B0082', '#32CD32', '#1E90FF', '#FFD700']  # Indigo (purple), LimeGreen, DodgerBlue, Gold
-
-    # Loop through each age group in the custom order
-    for i, age in enumerate(ordered_age_groups):
-        # For each age group, extract data for all countries
-        age_data = grouped_data[grouped_data[age_col] == age]
-
-        # Calculate x position for each bar
-        x = []
-        heights = []
-
-        for j, country in enumerate(country_groups):
-            country_data = age_data[age_data[country_col] == country]
-
-            if not country_data.empty:
-                pos = j + (i - len(ordered_age_groups) / 2 + 0.5) * bar_width
-                x.append(pos)
-                heights.append(country_data[value_col].values[0])
-
-                # Store country position for x-axis labels (center of the group)
-                if country not in country_positions:
-                    country_positions[country] = j
-
-        # Plot bars for this age group across all countries
-        ax.bar(x, heights, width=bar_width, label=age, color=colors[i % len(colors)], edgecolor='black', linewidth=0.5)
-
-    # Customize the plot
-    ax.set_xlabel('Countries', fontsize=12, fontweight='bold')
-    ax.set_ylabel('Number of Deaths', fontsize=12, fontweight='bold')
-    ax.set_title(title, fontsize=14, fontweight='bold')
-
+    # cosmetics
+    ax.set_xlabel('Group')
+    ax.set_ylabel('Number of Deaths')
+    ax.set_title(title)
     ax.set_xticks(positions)
-    ax.set_xticklabels(country_groups, fontsize=10, rotation=45, ha='right')
-
-    # Add gridlines for better readability
+    ax.set_xticklabels(entities, rotation=45, ha='right')
     ax.grid(axis='y', linestyle='--', alpha=0.3)
-
-    # Add legend with the custom order
-    ax.legend(title='Age Groups', fontsize=10, title_fontsize=12)
-
-    # Add data labels on top of bars
-    for container in ax.containers:
-        ax.bar_label(container, fmt='%.0f', fontsize=8, padding=3)
-
-    # Add some spacing
+    ax.legend(title='Age Group')
     plt.tight_layout()
-
-    # Show plot
     plt.show()
+
 # ---------------------------------------------INPUT FUNCTIONS--------------------------------------------#
 # ---------------------------------------------INPUT FUNCTIONS--------------------------------------------#
 # ---------------------------------------------INPUT FUNCTIONS--------------------------------------------#
@@ -540,7 +478,6 @@ def DataBaseValidator(df, arrayTouse, columnChecked):
         for c in arrayTouse:
             if c not in df[columnChecked].unique():
                 print(f"{c} is not in the dataframe")
-                done = False
             else:
                 validArray.append(c)
     return validArray
@@ -579,77 +516,18 @@ def numberAuthorizationProduct(df, products):
     return result.rename("Number of Authorizations")
 
 
-# old function still used in some but can be replaced with funciton above
-def CountryValidator(df, countries):
-    validCountries = []
-    if not df["Country"].isin(countries).all():
-        for c in countries:
-            if c not in df["Country"].unique():
-                print(f"{c} is not in the dataframe")
-                done = False
-            else:
-                validCountries.append(c)
-    return validCountries
-
-
-# Removes the countries that are not in the dataframe that is given.
-def WHO_regionValidator(df, regions):
-    validRegions = []
-    if not df["WHO_region"].isin(regions).all():
-        for c in regions:
-            if c not in df["WHO_region"].unique():
-                print(f"{c} is not in the dataframe")
-                done = False
-            else:
-                validRegions.append(c)
-    return validRegions
-
-
-def ISO3Validator(df, ISO3_countries):
-    validCountries = []
-    if not df["ISO3"].isin(ISO3_countries).all():
-        for c in ISO3_countries:
-            if c not in df["ISO3"].unique():
-                print(f"{c} is not in the dataframe")
-                done = False
-            else:
-                validCountries.append(c)
-    return validCountries
-
-
-def Country_codeValidator(df, CountryCode):
-    validCountries = []
-    if not df["Country_code"].isin(CountryCode).all():
-        for c in CountryCode:
-            if c not in df["Country_code"].unique():
-                print(f"{c} is not in the dataframe")
-                done = False
-            else:
-                validCountries.append(c)
-    return validCountries
-
-
-def Product_validator(df, product):
-    validCountries = []
-    if not df["PRODUCT_NAME"].isin(product).all():
-        for c in product:
-            if c not in df["PRODUCT_NAME"].unique():
-                print(f"{c} is not in the dataframe")
-                done = False
-            else:
-                validCountries.append(c)
-    return validCountries
-
 
 # Works for Global Daily data
 # Given the ranges of two dates in case it is malicious data then it converts it.
-def dateRangeValidator(df, start_date, end_date):
-    df["Date_reported"] = pd.to_datetime(df["Date_reported"])
+def dateRangeValidator(df, start_date, end_date, columnName = "Date_reported"):
+    #Ensuring no problems with data base.
+    df = df.copy()
+    df[columnName] = pd.to_datetime(df[columnName])
 
     if (end_date is None):
-        end_date = df["Date_reported"].max()
+        end_date = df[columnName].max()
     if (start_date is None):
-        start_date = df["Date_reported"].min()
+        start_date = df[columnName].min()
 
     try:
         start_date = pd.to_datetime(start_date)
@@ -658,17 +536,24 @@ def dateRangeValidator(df, start_date, end_date):
         print("Dates are invalid please check the format")
         return None
 
-    min_date = df["Date_reported"].min()
-    max_date = df["Date_reported"].max()
+    min_date = df[columnName].min()
+    max_date = df[columnName].max()
 
     if (start_date > end_date):
-        start_date = df["Date_reported"].min()
+        start_date = df[columnName].min()
     if (start_date < min_date or start_date > max_date):
-        start_date = df["Date_reported"].min()
+        start_date = df[columnName].min()
     if (end_date < min_date or end_date > max_date):
-        end_date = df["Date_reported"].max()
-    return start_date, end_date
+        end_date = df[columnName].max()
 
+    #In case any missing data still handled with closest date possible in the system.
+    end_date = getClosestDate(df, end_date, columnName)
+    start_date = getClosestDate(df, start_date, columnName)
+
+    print("─────────────────────────────────────────────────────────────")
+    print(f" Date range apllied by the system : {start_date} – {end_date}")
+    print("─────────────────────────────────────────────────────────────")
+    return start_date, end_date
 
 def getClosestDate(df, selectedDate, dateColumnName):
     selectedDate = pd.to_datetime(selectedDate)
@@ -676,7 +561,6 @@ def getClosestDate(df, selectedDate, dateColumnName):
     # goes trough every date possible and find the minimum difference and returns that date created the minimum date.
     closest = min(df[dateColumnName], key=lambda x: abs(x - selectedDate))
     return closest
-
 
 # ---------------------------------------------HELPER FUNCTIONS--------------------------------------------#
 # ---------------------------------------------HELPER FUNCTIONS--------------------------------------------#
@@ -698,7 +582,8 @@ def deathRateCountry(df, country_codes):
         return None
 
     # Validate country codes
-    valid_codes = Country_codeValidator(df, country_codes)
+    #
+    valid_codes = DataBaseValidator(df, country_codes, "Country_code")
     if valid_codes is None or len(valid_codes) == 0:
         return None
     df_countries = df[df['Country_code'].isin(valid_codes)].copy()
@@ -726,14 +611,15 @@ def deathRateRegion(df, regions):
     if (regions == None or len(regions) == 0):
         return None
     # Check if the all countries are in the dataframe
-    validRegions = WHO_regionValidator(df, regions)
+    validRegions = DataBaseValidator(df, regions, "WHO_region")
+
 
     if (validRegions == None or len(validRegions) == 0):
         return None
 
     df_regions = df[df['WHO_region'].isin(validRegions)].copy()
 
-    df_regions["Date_reported"] = pd.to_datetime(df["Date_reported"])
+    df_regions["Date_reported"] = pd.to_datetime(df_regions["Date_reported"])
 
     df_latest_region_data = df_regions.sort_values('Date_reported').groupby('WHO_region').last()
     # df_latest_regional_data contains the latest data for each country that is considered to be valid. Moreover, the data has their latest cumulative deaths and cases
@@ -768,20 +654,25 @@ def DeathRateRequest(countries):
 # End date is included but in case not given last date will be used
 # Start date is included, but if start date > end date, it will be set to the first date in the dataframe
 def averageDailyCases(df, country_codes, start_date, end_date=None):
-    validated_codes = Country_codeValidator(df, country_codes)
+    validated_codes = DataBaseValidator(df, country_codes, "Country_code")
     if validated_codes is None or len(validated_codes) == 0:
         return None
     df_countries = df[df['Country_code'].isin(validated_codes)].copy()
+    #Changing the type so that we will ensure we can compare.
+    df_countries["Date_reported"] = pd.to_datetime(df_countries["Date_reported"])
     df_countries = df_countries.sort_values("Date_reported")
 
-    # Dates are validated trough this function
-    start_date, end_date = dateRangeValidator(df_countries, start_date, end_date)
 
+    # Dates are validated trough this function
+    start_date, end_date = dateRangeValidator(df_countries, start_date, end_date,"Date_reported")
+
+    print(start_date, end_date)
     df_countries_filtered = df_countries[
         (df_countries["Date_reported"] >= start_date) & (df_countries["Date_reported"] <= end_date)]
     if (df_countries_filtered.empty):
         print("Could not find any countries within the date range")
         return None
+
     df_countries_filtered.fillna(0, inplace=True)
     avg_cases = df_countries_filtered.groupby("Country_code")["New_cases"].mean()
     avg_cases = avg_cases.rename("Average")
@@ -792,14 +683,18 @@ def averageDailyCases(df, country_codes, start_date, end_date=None):
 # End date is included but in case not given last date will be used
 # Start date is included, but if start date > end date, it will be set to the first date in the dataframe
 def averageDailyDeath(df, country_codes, start_date, end_date=None):
-    validated_codes = Country_codeValidator(df, country_codes)
+    validated_codes = DataBaseValidator(df, country_codes, "Country_code")
+
     if validated_codes is None or len(validated_codes) == 0:
         return None
     df_countries = df[df['Country_code'].isin(validated_codes)].copy()
+    #Changing the type so that we will ensure we can compare.
+    df_countries["Date_reported"] = pd.to_datetime(df_countries["Date_reported"])
+
     df_countries = df_countries.sort_values("Date_reported")
 
     # Dates are validated trough this function
-    start_date, end_date = dateRangeValidator(df_countries, start_date, end_date)
+    start_date, end_date = dateRangeValidator(df_countries, start_date, end_date,"Date_reported")
 
     df_countries_filtered = df_countries[
         (df_countries["Date_reported"] >= start_date) & (df_countries["Date_reported"] <= end_date)]
@@ -816,7 +711,7 @@ def averageDailyDeath(df, country_codes, start_date, end_date=None):
 # End date is included but in case not given last date will be used
 # Start date is included, but if start date > end date, it will be set to the first date in the dataframe
 def averageDailyRegionalCases(df, regions, start_date, end_date=None):
-    validated_regions = WHO_regionValidator(df, regions)
+    validated_regions = DataBaseValidator(df, regions, "WHO_region")
     if validated_regions is None or len(validated_regions) == 0:
         return None
     df_regions = df[df['WHO_region'].isin(validated_regions)].copy()
@@ -840,7 +735,7 @@ def averageDailyRegionalCases(df, regions, start_date, end_date=None):
 # End date is included but in case not given last date will be used
 # Start date is included, but if start date > end date, it will be set to the first date in the dataframe
 def averageDailyRegionalDeath(df, regions, start_date, end_date=None):
-    validated_regions = WHO_regionValidator(df, regions)
+    validated_regions = DataBaseValidator(df, regions, "WHO_region")
     if validated_regions is None or len(validated_regions) == 0:
         return None
     df_regions = df[df['WHO_region'].isin(validated_regions)].copy()
@@ -870,7 +765,7 @@ def vaccinationCoverageISO3(df, ISO3_countries):
     # Check if the all countries are in the dataframe
     fixedDF = df.copy()
     fixedDF = fixedDF.rename(columns={"COUNTRY": "Country"})
-    validated_countries = ISO3Validator(fixedDF, ISO3_countries)
+    validated_countries = DataBaseValidator(fixedDF, ISO3_countries, "ISO3")
     if validated_countries == None or len(validated_countries) == 0:
         return None
 
@@ -890,7 +785,7 @@ def totalVaccinationISO3(df, ISO3_countries):
     # Check if the all countries are in the dataframe
     fixedDF = df.copy()
     fixedDF = fixedDF.rename(columns={"COUNTRY": "Country"})
-    validated_countries = ISO3Validator(fixedDF, ISO3_countries)
+    validated_countries = DataBaseValidator(fixedDF, ISO3_countries, "ISO3")
     if validated_countries == None or len(validated_countries) == 0:
         return None
 
@@ -914,7 +809,7 @@ def boosterDoseRateISO3(df, ISO3_countries):
 
     fixedDF = df.copy()
     fixedDF = fixedDF.rename(columns={"COUNTRY": "Country"})
-    validated_countries = ISO3Validator(fixedDF, ISO3_countries)
+    validated_countries = DataBaseValidator(fixedDF, ISO3_countries, "ISO3")
     if validated_countries is None or len(validated_countries) == 0:
         return None
 
@@ -935,7 +830,7 @@ def totalVaccinationSummaryISO3(df, ISO3_countries):
 
     fixedDF = df.copy()
     fixedDF = fixedDF.rename(columns={"COUNTRY": "Country"})
-    validated_countries = ISO3Validator(fixedDF, ISO3_countries)
+    validated_countries = DataBaseValidator(fixedDF, ISO3_countries, "ISO3")
     if validated_countries is None or len(validated_countries) == 0:
         return None
 
@@ -954,7 +849,7 @@ def numberAuthorizationISO3(df, ISO3_countries):
         return None
 
     fixedDF = df.copy()
-    validated_countries = ISO3Validator(fixedDF, ISO3_countries)
+    validated_countries = DataBaseValidator(fixedDF, ISO3_countries, "ISO3")
     if validated_countries is None or len(validated_countries) == 0:
         return None
 
@@ -982,10 +877,8 @@ def AverageHospitalizationWeeklyCountry(df, ISO3_countries, start_date, end_date
     df_countries = df_countries.sort_values("Date_reported")
     df_countries["Date_reported"] = pd.to_datetime(df_countries["Date_reported"])
 
-    start_date = getClosestDate(df_countries, start_date, "Date_reported")
-    end_date = getClosestDate(df_countries, end_date, "Date_reported")
-    # In case still mistakes
-    start_date, end_date = dateRangeValidator(df_countries, start_date, end_date)
+
+    start_date, end_date = dateRangeValidator(df_countries, start_date, end_date, "Date_reported")
 
     df_adjusted = df_countries[
         (df_countries["Date_reported"] >= start_date) & (df_countries["Date_reported"] <= end_date)]
@@ -1011,10 +904,8 @@ def AverageHospitalizationMonthlyCountry(df, ISO3_countries, start_date, end_dat
     df_countries = df_countries.sort_values("Date_reported")
     df_countries["Date_reported"] = pd.to_datetime(df_countries["Date_reported"])
 
-    start_date = getClosestDate(df_countries, start_date, "Date_reported")
-    end_date = getClosestDate(df_countries, end_date, "Date_reported")
-    # In case still mistakes
-    start_date, end_date = dateRangeValidator(df_countries, start_date, end_date)
+
+    start_date,end_date = dateRangeValidator(df_countries, start_date, end_date,"Date_reported")
 
     df_adjusted = df_countries[
         (df_countries["Date_reported"] >= start_date) & (df_countries["Date_reported"] <= end_date)]
@@ -1033,12 +924,8 @@ def AverageHospitalizationMonthlyAll(df, start_date, end_date):
     df_countries["Date_reported"] = pd.to_datetime(df_countries["Date_reported"])
     df_countries = df_countries.sort_values("Date_reported")
 
-    # Get closest dates from available data
-    start_date = getClosestDate(df_countries, start_date, "Date_reported")
-    end_date = getClosestDate(df_countries, end_date, "Date_reported")
+    start_date, end_date = dateRangeValidator(df_countries, start_date, end_date,"Date_reported")
 
-    # Validate final date range
-    start_date, end_date = dateRangeValidator(df_countries, start_date, end_date)
 
     df_adjusted = df_countries[
         (df_countries["Date_reported"] >= start_date) &
@@ -1068,11 +955,8 @@ def AverageHospitalizationWeeklyAll(df, start_date, end_date):
     df_countries = df_countries.sort_values("Date_reported")
 
     # Get closest dates from available data
-    start_date = getClosestDate(df_countries, start_date, "Date_reported")
-    end_date = getClosestDate(df_countries, end_date, "Date_reported")
+    start_date,end_date = dateRangeValidator(df_countries, start_date, end_date,"Date_reported")
 
-    # Validate final date range
-    start_date, end_date = dateRangeValidator(df_countries, start_date, end_date)
 
     df_adjusted = df_countries[
         (df_countries["Date_reported"] >= start_date) &
@@ -1095,16 +979,17 @@ def AverageHospitalizationWeeklyAll(df, start_date, end_date):
 def timeIntervalData(df, df_array, start_date, end_date, time_column_name, data_column_name, data_wanted):
     # Make a copy to work safely
     df_countries = df.copy()
+    if data_wanted not in df.columns:
+        print("Missing expected column in dataset.")
+        return None
 
+    df_array = DataBaseValidator(df, df_array, data_column_name)
     # Make sure the time column is in datetime format
     df_countries[time_column_name] = pd.to_datetime(df_countries[time_column_name])
 
     # Adjust start and end dates to closest available
-    start_date = getClosestDate(df_countries, start_date, time_column_name)
-    end_date = getClosestDate(df_countries, end_date, time_column_name)
+    start_date,end_date = dateRangeValidator(df_countries, start_date, end_date,time_column_name)
 
-    # Validate that start_date <= end_date
-    start_date, end_date = dateRangeValidator(df_countries, start_date, end_date)
 
     df_filtered_array = DataBaseValidator(df_countries, df_array, data_column_name)
 
@@ -1119,83 +1004,80 @@ def timeIntervalData(df, df_array, start_date, end_date, time_column_name, data_
     return filtered_data
 
 
-def deaths_by_age_group_country(df, ISO3_countries, start_date=None, end_date=None):
-    if ISO3_countries is None or len(ISO3_countries) == 0:
+def deaths_by_age_group_country(df, ISO3_countries,
+                                start_date=None, end_date=None):
+    if not ISO3_countries:
         return None
 
-    # Validate ISO3 codes
-    validated_codes = DataBaseValidator(df, ISO3_countries, "Country_code")
-    if validated_codes is None or len(validated_codes) == 0:
+    valid = DataBaseValidator(df, ISO3_countries, "Country_code")
+    if not valid:
         return None
 
-    df_countries = df[df['Country_code'].isin(validated_codes)].copy()
+    d = df[df['Country_code'].isin(valid)].copy()
+    d["Date_reported"] = pd.to_datetime(
+        dict(year=d["Year"], month=d["Month"], day=1))
 
-    # DATE VALIDATION, DATES IN THIS DATABASE ARE IN DIFFERENT COLUMNS MONTH AND YEAR
-    df_countries["Date_reported"] = pd.to_datetime(dict(year=df_countries["Year"], month=df_countries["Month"], day=1))
+    start_date, end_date = dateRangeValidator(
+        d, start_date, end_date, "Date_reported")
 
-    start_date, end_date = dateRangeValidator(df_countries, start_date=start_date, end_date=end_date)
-    start_date = getClosestDate(df_countries, start_date, "Date_reported")
-    end_date = getClosestDate(df_countries, end_date, "Date_reported")
+    d = d[(d["Date_reported"] >= start_date) & (d["Date_reported"] <= end_date)]
 
-    # Filter the data
-    df_countries = df_countries[
-        (df_countries["Date_reported"] >= start_date) & (df_countries["Date_reported"] <= end_date)]
-
-    # Group by country and age group, then sum the deaths
-    result = df_countries.groupby(["Country_code", "Agegroup"])["Deaths"].sum()
-    return result
+    # --- NEW: always return a tidy DF ---
+    out = (d.groupby(["Country_code", "Agegroup"])["Deaths"]
+             .sum()
+             .reset_index()
+             .rename(columns={"Country_code": "Group"}))   # unify column name
+    return out
 
 
-def deaths_by_income(df, Income_group, start_date=None, end_date=None):
-    if Income_group is None or len(Income_group) == 0:
+def deaths_by_income(df, income_groups,
+                     start_date=None, end_date=None):
+    if not income_groups:
         return None
-    # Validate ISO3 codes
-    validated_codes = DataBaseValidator(df, Income_group, "Wb_income")
-    if validated_codes is None or len(validated_codes) == 0:
+
+    valid = DataBaseValidator(df, income_groups, "Wb_income")
+    if not valid:
         return None
-    df_countries = df[df['Wb_income'].isin(validated_codes)].copy()
 
-    # DATE VALIDATION, DATES IN THIS DATABASE ARE IN DIFFERENT COLUMNS MONTH AND YEAR
+    dataincome = df[df['Wb_income'].isin(valid)].copy()
+    dataincome["Date_reported"] = pd.to_datetime(
+        dict(year=dataincome["Year"], month=dataincome["Month"], day=1))
 
-    df_countries["Date_reported"] = pd.to_datetime(dict(year=df_countries["Year"], month=df_countries["Month"], day=1))
+    start_date, end_date = dateRangeValidator(
+        dataincome, start_date, end_date, "Date_reported")
 
-    start_date, end_date = dateRangeValidator(df_countries, start_date=start_date, end_date=end_date)
-    start_date = getClosestDate(df_countries, start_date, "Date_reported")
-    end_date = getClosestDate(df_countries, end_date, "Date_reported")
+    dataincome = dataincome[(dataincome["Date_reported"] >= start_date) & (dataincome["Date_reported"] <= end_date)]
 
-    # Filter the data
-    df_countries = df_countries[
-        (df_countries["Date_reported"] >= start_date) & (df_countries["Date_reported"] <= end_date)]
-    # Group by country and age group, then sum the deaths
-    print(df_countries)
-    df_countries = df_countries.groupby(["Wb_income", "Agegroup"], as_index=True)["Deaths"].sum()
-    return df_countries
+    out = (dataincome.groupby(["Wb_income", "Agegroup"])["Deaths"]
+             .sum()
+             .reset_index()
+             .rename(columns={"Wb_income": "Group"}))
+    return out
 
 
-def deaths_by_age_group_region(df, Who_region, start_date=None, end_date=None):
-    if Who_region is None or len(Who_region) == 0:
+def deaths_by_age_group_region(df, who_regions,
+                               start_date=None, end_date=None):
+    if not who_regions:
         return None
-    # Validate ISO3 codes
-    validated_codes = DataBaseValidator(df, Who_region, "Who_region")
-    if validated_codes is None or len(validated_codes) == 0:
+
+    valid = DataBaseValidator(df, who_regions, "Who_region")
+    if not valid:
         return None
-    df_countries = df[df['Who_region'].isin(validated_codes)].copy()
 
-    # DATE VALIDATION, DATES IN THIS DATABASE ARE IN DIFFERENT COLUMNS MONTH AND YEAR
+    dataregion = df[df['Who_region'].isin(valid)].copy()
+    dataregion["Date_reported"] = pd.to_datetime(
+        dict(year=dataregion["Year"], month=dataregion["Month"], day=1))
 
-    df_countries["Date_reported"] = pd.to_datetime(dict(year=df_countries["Year"], month=df_countries["Month"], day=1))
+    start_date, end_date = dateRangeValidator(
+        dataregion, start_date, end_date, "Date_reported")
 
-    start_date, end_date = dateRangeValidator(df_countries, start_date=start_date, end_date=end_date)
-    start_date = getClosestDate(df_countries, start_date, "Date_reported")
-    end_date = getClosestDate(df_countries, end_date, "Date_reported")
+    dataregion = dataregion[(dataregion["Date_reported"] >= start_date) & (dataregion["Date_reported"] <= end_date)]
 
-    # Filter the data
-    df_countries = df_countries[
-        (df_countries["Date_reported"] >= start_date) & (df_countries["Date_reported"] <= end_date)]
-    # Group by country and age group, then sum the deaths
-    print(df_countries)
-    df_countries = df_countries.groupby(["Who_region", "Agegroup"], as_index=True)["Deaths"].sum()
-    return df_countries
+    out = (dataregion.groupby(["Who_region", "Agegroup"])["Deaths"]
+             .sum()
+             .reset_index()
+             .rename(columns={"Who_region": "Group"}))
+    return out
 
 
 # ---------------------------------------------CALCULATION FUNCTIONS--------------------------------------------#
@@ -1203,13 +1085,19 @@ def deaths_by_age_group_region(df, Who_region, start_date=None, end_date=None):
 # ---------------------------------------------CALCULATION FUNCTIONS--------------------------------------------#
 # ---------------------------------------------CALCULATION FUNCTIONS--------------------------------------------#
 # ---------------------------------------------CALCULATION FUNCTIONS--------------------------------------------#
-vaccinationmetaDF = pd.read_csv('/Users/nihatomerkaraca/Desktop/Programming for Data Science/database/vaccination-metadata.csv')
+vaccinationmetaDF = pd.read_csv(
+    '/Users/nihatomerkaraca/Desktop/Programming for Data Science/database/vaccination-metadata.csv')
 vaccinationDF = pd.read_csv('/Users/nihatomerkaraca/Desktop/Programming for Data Science/database/vaccination-data.csv')
-GlobalDailyDF = pd.read_csv('/Users/nihatomerkaraca/Desktop/Programming for Data Science/database/WHO-COVID-19-global-daily-data.csv')
-GlobalWeeklyDF = pd.read_csv('/Users/nihatomerkaraca/Desktop/Programming for Data Science/database/WHO-COVID-19-global-data.csv')
-GlobalHospDF = pd.read_csv('/Users/nihatomerkaraca/Desktop/Programming for Data Science/database/WHO-COVID-19-global-hosp-icu-data.csv')
-GlobalMontlyDeathDF = pd.read_csv('/Users/nihatomerkaraca/Desktop/Programming for Data Science/database/WHO-COVID-19-global-monthly-death-by-age-data.csv')
-GlobalTableDF = pd.read_csv('/Users/nihatomerkaraca/Desktop/Programming for Data Science/database/WHO-COVID-19-global-table-data.csv')
+GlobalDailyDF = pd.read_csv(
+    '/Users/nihatomerkaraca/Desktop/Programming for Data Science/database/WHO-COVID-19-global-daily-data.csv')
+GlobalWeeklyDF = pd.read_csv(
+    '/Users/nihatomerkaraca/Desktop/Programming for Data Science/database/WHO-COVID-19-global-data.csv')
+GlobalHospDF = pd.read_csv(
+    '/Users/nihatomerkaraca/Desktop/Programming for Data Science/database/WHO-COVID-19-global-hosp-icu-data.csv')
+GlobalMontlyDeathDF = pd.read_csv(
+    '/Users/nihatomerkaraca/Desktop/Programming for Data Science/database/WHO-COVID-19-global-monthly-death-by-age-data.csv')
+GlobalTableDF = pd.read_csv(
+    '/Users/nihatomerkaraca/Desktop/Programming for Data Science/database/WHO-COVID-19-global-table-data.csv')
 
 user_input = getUserInput()
 
