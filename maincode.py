@@ -13,158 +13,87 @@ import seaborn as sns
 # ---------------------------------------------INPUT FUNCTIONS--------------------------------------------#
 # ---------------------------------------------INPUT FUNCTIONS--------------------------------------------#
 
-def getUserInput():
-    # ── a) codes and labels ─────────────────────────────────────────────
-    stat_map = {
-        '1': 'DR',
-        '2': 'RT',
-        '3': 'AVG_CASES',
-        '4': 'AVG_DEATHS',
-        '5': 'REGIONAL_DR',
-        '6': 'VAX_COVERAGE',
-        '7': 'BOOSTER_RATE',
-        '8': 'VAX_SUMMARY',
-        '9': 'AUTH_ISO3',
-        '10': 'AUTH_PRODUCT',
-        '11': 'AVG_HOSP_WEEK',
-        '12': 'AVG_HOSP_MONTH',
-        '13': 'TIME_SERIES',
-        '14': 'AGE_DEATH_ANALYSIS',
-        '15': 'AGE_DEATH_INCOME',  # NEW
-        '16': 'AGE_DEATH_REGION',  # NEW
-    }
+class UserInput:
+    def __init__(self):
+        self.stat_map = {
+            '1': 'DR', '2': 'RT', '3': 'AVG_CASES', '4': 'AVG_DEATHS', '5': 'REGIONAL_DR',
+            '6': 'VAX_COVERAGE', '7': 'BOOSTER_RATE', '8': 'VAX_SUMMARY', '9': 'AUTH_ISO3',
+            '10': 'AUTH_PRODUCT', '11': 'AVG_HOSP_WEEK', '12': 'AVG_HOSP_MONTH',
+            '13': 'TIME_SERIES', '14': 'AGE_DEATH_ANALYSIS', '15': 'AGE_DEATH_INCOME', '16': 'AGE_DEATH_REGION'
+        }
 
-    stat_labels = {
-        'DR': 'Death Rate (CFR)',
-        'RT': 'Rt (Reproduction Number) not working yet',
-        'AVG_CASES': 'Average Daily Cases',
-        'AVG_DEATHS': 'Average Daily Deaths',
-        'REGIONAL_DR': 'Regional Death Rate',
-        'VAX_COVERAGE': 'Vaccination Coverage',
-        'BOOSTER_RATE': 'Booster Dose Rate',
-        'VAX_SUMMARY': 'Total Vaccination Summary',
-        'AUTH_ISO3': 'Vaccine Authorisations by ISO3',
-        'AUTH_PRODUCT': 'Vaccine Authorisations by Product Name',
-        'AVG_HOSP_WEEK': 'Average Weekly Hospitalisations',
-        'AVG_HOSP_MONTH': 'Average Monthly Hospitalisations',
-        'TIME_SERIES': 'Daily Time-Series',
-        'AGE_DEATH_ANALYSIS': 'Monthly Deaths by Age Group (countries)',
-        'AGE_DEATH_INCOME': 'Monthly Deaths by Age Group (income)',
-        'AGE_DEATH_REGION': 'Monthly Deaths by Age Group (WHO region)',
-    }
+        self.stat_labels = {
+            'DR': 'Death Rate (CFR)', 'RT': 'Rt (Reproduction Number) not working yet',
+            'AVG_CASES': 'Average Daily Cases', 'AVG_DEATHS': 'Average Daily Deaths',
+            'REGIONAL_DR': 'Regional Death Rate', 'VAX_COVERAGE': 'Vaccination Coverage',
+            'BOOSTER_RATE': 'Booster Dose Rate', 'VAX_SUMMARY': 'Total Vaccination Summary',
+            'AUTH_ISO3': 'Vaccine Authorisations by ISO3', 'AUTH_PRODUCT': 'Vaccine Authorisations by Product Name',
+            'AVG_HOSP_WEEK': 'Average Weekly Hospitalisations', 'AVG_HOSP_MONTH': 'Average Monthly Hospitalisations',
+            'TIME_SERIES': 'Daily Time-Series', 'AGE_DEATH_ANALYSIS': 'Monthly Deaths by Age Group (countries)',
+            'AGE_DEATH_INCOME': 'Monthly Deaths by Age Group (income)', 'AGE_DEATH_REGION': 'Monthly Deaths by Age Group (WHO region)'
+        }
 
-    input_type_labels = {
-        '1': 'ISO3 code (3-letter)',
-        '2': 'Country code (2-letter)',
-        '3': 'WHO region',
-        '4': 'Vaccine product name',
-        '5': 'World-Bank income group',  # NEW
-    }
+        self.input_type_labels = {
+            '1': 'ISO3 code (3-letter)', '2': 'Country code (2-letter)',
+            '3': 'WHO region', '4': 'Vaccine product name', '5': 'World-Bank income group'
+        }
 
-    # which identifier types are allowed for each statistic
-    allowed_input_map = {
-        'DR': ['2'],
-        'RT': ['2'],
-        'AVG_CASES': ['2'],
-        'AVG_DEATHS': ['2'],
-        'REGIONAL_DR': ['3'],
-        'VAX_COVERAGE': ['1'],
-        'BOOSTER_RATE': ['1'],
-        'VAX_SUMMARY': ['1'],
-        'AUTH_ISO3': ['1'],
-        'AUTH_PRODUCT': ['4'],
-        'AVG_HOSP_WEEK': ['1'],
-        'AVG_HOSP_MONTH': ['1'],
-        'TIME_SERIES': ['2'],
-        'AGE_DEATH_ANALYSIS': ['1'],
-        'AGE_DEATH_INCOME': ['5'],
-        'AGE_DEATH_REGION': ['3'],
-    }
+        self.allowed_input_map = {
+            'DR': ['2'], 'RT': ['2'], 'AVG_CASES': ['2'], 'AVG_DEATHS': ['2'],
+            'REGIONAL_DR': ['3'], 'VAX_COVERAGE': ['1'], 'BOOSTER_RATE': ['1'],
+            'VAX_SUMMARY': ['1'], 'AUTH_ISO3': ['1'], 'AUTH_PRODUCT': ['4'],
+            'AVG_HOSP_WEEK': ['1'], 'AVG_HOSP_MONTH': ['1'], 'TIME_SERIES': ['2'],
+            'AGE_DEATH_ANALYSIS': ['1'], 'AGE_DEATH_INCOME': ['5'], 'AGE_DEATH_REGION': ['3']
+        }
 
-    # ── b) main menu ────────────────────────────────────────────────────
-    number = input(
-        "Select statistic to compute: example usage ISO3: TUR,USA,FRA   Country code : TR,US,FR    Who region : AMR,EUR    Income group: LIC,UMC\n"
-        "  1  – Death Rate (CFR) (country code)\n"
-        "  2  – Rt (Effective Reproduction Number)\n"
-        "  3  – Average Daily Cases (country code)\n"
-        "  4  – Average Daily Deaths (country code)\n"
-        "  5  – Regional Death Rate (country code)\n"
-        "  6  – Vaccination Coverage  (ISO3)\n"
-        "  7  – Booster Dose Rate     (ISO3)\n"
-        "  8  – Total Vaccination Summary (ISO3)\n"
-        "  9  – # Vaccine Authorisations by ISO3\n"
-        " 10  – # Vaccine Authorisations by Product\n"
-        " 11  – Average Weekly Hospitalisations (ISO3)\n"
-        " 12  – Average Monthly Hospitalisations (ISO3)\n"
-        " 13  – Daily Time-Series (country code)\n"
-        " 14  – Monthly Deaths by Age Group (countries)\n"
-        " 15  – Monthly Deaths by Age Group (income groups)\n"
-        " 16  – Monthly Deaths by Age Group (WHO regions)\n"
-        "Enter the number of your choice: "
-    )
-    while number not in stat_map:
-        number = input("Invalid input. Please try again: ")
+    def prompt_user(self):
+        number = input("Select statistic to compute: \n")
+        while number not in self.stat_map:
+            number = input("Invalid input. Please try again: ")
 
-    stat_code = stat_map[number]
+        stat_code = self.stat_map[number]
+        input_type = input("\nChoose identifier type: ")
+        while input_type not in self.allowed_input_map[stat_code]:
+            input_type = input(f"Invalid for {self.stat_labels[stat_code]}. Allowed: {', '.join(self.allowed_input_map[stat_code])} → ")
 
-    input_type = input(
-        "\nChoose identifier type:\n"
-        " 1 – ISO3 code\n"
-        " 2 – Country code\n"
-        " 3 – WHO region\n"
-        " 4 – Vaccine product name\n"
-        " 5 – World-Bank income group\n"
-        "Enter input type number: "
-    )
-    while input_type not in allowed_input_map[stat_code]:
-        input_type = input(
-            f"Invalid for {stat_labels[stat_code]}. "
-            f"Allowed: {', '.join(allowed_input_map[stat_code])} → "
-        )
+        ids = [v.strip() for v in input("\nEnter values (comma-separated): ").split(",") if v.strip()]
+        if not ids:
+            ids = ['USA']
 
-    ids = [v.strip() for v in input("\nEnter values (comma-separated): ").split(",") if v.strip()]
-    if not ids:
-        ids = ['USA']
+        date_needed = stat_code in {
+            'AVG_CASES', 'AVG_DEATHS', 'AVG_HOSP_WEEK', 'AVG_HOSP_MONTH',
+            'TIME_SERIES', 'AGE_DEATH_ANALYSIS', 'AGE_DEATH_INCOME', 'AGE_DEATH_REGION'
+        }
+        start_date = end_date = None
+        if date_needed:
+            start_date = input("\nStart date (YYYY-MM-DD): ")
+            end_date = input("End date   (YYYY-MM-DD): ")
 
-    date_needed = stat_code in {
-        'AVG_CASES', 'AVG_DEATHS', 'AVG_HOSP_WEEK', 'AVG_HOSP_MONTH',
-        'TIME_SERIES', 'AGE_DEATH_ANALYSIS', 'AGE_DEATH_INCOME', 'AGE_DEATH_REGION'
-    }
-    start_date = end_date = None
-    if date_needed:
-        start_date = input("\nStart date (YYYY-MM-DD): ")
-        end_date = input("End date   (YYYY-MM-DD): ")
+        data_wanted = None
+        if stat_code == 'TIME_SERIES':
+            data_wanted = input("\nWhich column? e.g. New_cases, New_deaths → ") or 'New_cases'
 
-    # ── f) column name (time-series only) ───────────────────────────────
-    data_wanted = None
-    if stat_code == 'TIME_SERIES':
-        data_wanted = input(
-            "\nWhich column? e.g. New_cases, New_deaths, "
-            "Cumulative_cases, Cumulative_deaths → "
-        ) or 'New_cases'
+        print("\n─────────────────────────────────────────────────────────────")
+        print(f" Statistic   : {self.stat_labels[stat_code]}")
+        print(f" IDs type    : {self.input_type_labels[input_type]}")
+        print(f" IDs         : {', '.join(ids)}")
+        if date_needed:
+            print(f" Date range  : {start_date} – {end_date} (auto-fixed if invalid)")
+        if data_wanted:
+            print(f" Column      : {data_wanted}")
+        print("─────────────────────────────────────────────────────────────")
 
-    # ── g) confirmation ─────────────────────────────────────────────────
-    print("\n─────────────────────────────────────────────────────────────")
-    print(f" Statistic   : {stat_labels[stat_code]}")
-    print(f" IDs type    : {input_type_labels[input_type]}")
-    print(f" IDs         : {', '.join(ids)}")
-    if date_needed:
-        print(f" Date range  : {start_date} – {end_date} (auto-fixed if invalid)")
-    if data_wanted:
-        print(f" Column      : {data_wanted}")
-    print("─────────────────────────────────────────────────────────────")
+        return {
+            "stat": stat_code,
+            "input_type": input_type,
+            "values": ids,
+            "start_date": start_date,
+            "end_date": end_date,
+            "data_wanted": data_wanted,
+        }
 
-    return {
-        "stat": stat_code,
-        "input_type": input_type,
-        "values": ids,
-        "start_date": start_date,
-        "end_date": end_date,
-        "data_wanted": data_wanted,
-    }
 
-    # Looks at the chosen statistic and calls the matching helper.
-    # Returns either a Series or a DataFrame ready for plotting/printing.
+
 
 
 def dispatchUserQuery(user_input, dfs):
@@ -1085,21 +1014,16 @@ def deaths_by_age_group_region(df, who_regions,
 # ---------------------------------------------CALCULATION FUNCTIONS--------------------------------------------#
 # ---------------------------------------------CALCULATION FUNCTIONS--------------------------------------------#
 # ---------------------------------------------CALCULATION FUNCTIONS--------------------------------------------#
-vaccinationmetaDF = pd.read_csv(
-    '/Users/nihatomerkaraca/Desktop/Programming for Data Science/database/vaccination-metadata.csv')
-vaccinationDF = pd.read_csv('/Users/nihatomerkaraca/Desktop/Programming for Data Science/database/vaccination-data.csv')
-GlobalDailyDF = pd.read_csv(
-    '/Users/nihatomerkaraca/Desktop/Programming for Data Science/database/WHO-COVID-19-global-daily-data.csv')
-GlobalWeeklyDF = pd.read_csv(
-    '/Users/nihatomerkaraca/Desktop/Programming for Data Science/database/WHO-COVID-19-global-data.csv')
-GlobalHospDF = pd.read_csv(
-    '/Users/nihatomerkaraca/Desktop/Programming for Data Science/database/WHO-COVID-19-global-hosp-icu-data.csv')
-GlobalMontlyDeathDF = pd.read_csv(
-    '/Users/nihatomerkaraca/Desktop/Programming for Data Science/database/WHO-COVID-19-global-monthly-death-by-age-data.csv')
-GlobalTableDF = pd.read_csv(
-    '/Users/nihatomerkaraca/Desktop/Programming for Data Science/database/WHO-COVID-19-global-table-data.csv')
+vaccinationmetaDF = pd.read_csv('/Users/ilbarskorkmaz/Downloads/database/vaccination-metadata.csv')
+vaccinationDF = pd.read_csv('/Users/ilbarskorkmaz/Downloads/database/vaccination-data.csv')
+GlobalDailyDF= pd.read_csv('/Users/ilbarskorkmaz/Downloads/database/WHO-COVID-19-global-daily-data.csv')
+GlobalWeeklyDF= pd.read_csv('/Users/ilbarskorkmaz/Downloads/database/WHO-COVID-19-global-data.csv')
+GlobalHospDF= pd.read_csv('/Users/ilbarskorkmaz/Downloads/database/WHO-COVID-19-global-hosp-icu-data.csv')
+GlobalMontlyDeathDF= pd.read_csv('/Users/ilbarskorkmaz/Downloads/database/WHO-COVID-19-global-monthly-death-by-age-data.csv')
+GlobalTableDF = pd.read_csv('/Users/ilbarskorkmaz/Downloads/database/WHO-COVID-19-global-table-data.csv')
+ui = UserInput()
+user_input = ui.prompt_user()
 
-user_input = getUserInput()
 
 dfs = {
     "global_daily": GlobalDailyDF,  # WHO-COVID-19-global-daily-data.csv
@@ -1121,3 +1045,4 @@ if result is not None:
 
     if plot_choice == 'y':
         plotResult(result, user_input)
+
