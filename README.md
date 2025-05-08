@@ -10,7 +10,7 @@ This project aims to create a reporting tool for the Covid-19 outbreak that allo
 
 To run the dashboard, download the file and run in terminal: 
 ```bash
-streamlit run streamlitApp.py
+streamlit run /path_to/streamlitApp.py
 ```
 
 If you do not have streamlit already install via: 
