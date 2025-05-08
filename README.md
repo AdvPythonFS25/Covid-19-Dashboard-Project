@@ -2,9 +2,6 @@
 
 An interactive dashboard providing insights to the global COVID-19 pandemic, developed for the *Programming for Data Science* course at the Univeristy of Bern. 
 
-**NOTE**
-**main.py is under maintenance!!! Please run dashborard through streamlitApp.py under the src file**
-
 ## 🌍 Project Overview 
 
 This project aims to create a reporting tool for the Covid-19 outbreak that allows users to explore cases and deaths across countries/regions at specific time spans using data from the [WHO’s Global Health Observatory](https://www.who.int/data/gho).
@@ -13,7 +10,7 @@ This project aims to create a reporting tool for the Covid-19 outbreak that allo
 
 To run the dashboard, download the file and run in terminal: 
 ```bash
-streamlit run main.py
+streamlit run streamlitApp.py
 ```
 
 If you do not have streamlit already install via: 
