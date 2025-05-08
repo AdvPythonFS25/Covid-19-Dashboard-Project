@@ -32,8 +32,8 @@ pip install streamlit
 | :------ | :---- |
 | Death Rate (CFR) | (Cumulative deaths / Cumulative cases) * 100|
 | Rt (Reproduction Number)| Indicator of how contagious a disease is. Average number of new cases that arise from an infected individual at a given time|
-| Average Daily Cases |  |
-| Average Daily Deaths |  |
+| Daily Cases | Number of daily cases |
+| Daily Deaths | Number of daily deaths |
 | Vaccination Coverage | Number of people vaccinated |
 | Booster Dose Rate | Number of people successful administered with booster dose |
 | Vaccine Authorisations | Type of vaccines authourised by country |
