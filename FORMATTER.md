@@ -133,7 +133,7 @@ def vaccinationCoverageISO3(df, ISO3_countries):
         return None
 ```
 
-### ✅ 5. Removed unnecessary parentheses in if statements
+###  5. Removed unnecessary parentheses in if statements
 ```python
 # Before
 def averageDailyCases(df, country_codes, start_date, end_date=None):
