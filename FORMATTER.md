@@ -22,7 +22,7 @@ Your code has been rated at 5.80/10
 
 I've fixed the following 5 issues reported by pylint:
 
-### ✅ 1. Removed unused import
+###  1. Removed unused import
 ```python
 # Before
 from __future__ import annotations
@@ -38,7 +38,7 @@ import numpy as np
 import pandas as pd
 ```
 
-### ✅ 2. Added proper docstring to function
+###  2. Added proper docstring to function
 ```python
 # Before
 # DEATH RATE CALCULATION FUNCTION COUNTRY CODE BASED
@@ -67,7 +67,7 @@ def deathRateCountry(df, country_codes):
         return None
 ```
 
-### ✅ 3. Renamed function and parameters to follow snake_case naming convention
+###  3. Renamed function and parameters to follow snake_case naming convention
 ```python
 # Before
 def DataBaseValidator(df, arrayTouse, columnChecked):
@@ -108,7 +108,7 @@ def database_validator(df, array_to_use, column_checked):
     return valid_array
 ```
 
-### ✅ 4. Fixed singleton comparison with None
+###  4. Fixed singleton comparison with None
 ```python
 # Before
 def vaccinationCoverageISO3(df, ISO3_countries):
@@ -156,6 +156,3 @@ def averageDailyCases(df, country_codes, start_date, end_date=None):
 ## Result Pylint Score
 Your code has been rated at 6.02/10
 
-## Conclusion
-
-The fixes above address some key issues identified by pylint. They improve code readability, maintainability, and adherence to Python coding conventions (PEP 8). These changes make the code more Pythonic and easier to understand for other developers. 
