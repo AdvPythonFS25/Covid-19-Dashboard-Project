@@ -417,8 +417,7 @@ def barGraph(statistical_data, x_axis_label, y_axis_label, title, error_data=Non
     plt.show()
 
 
-# NOT FINISHED YET
-# This function will take at most 4 countries/regions/codes and will show the data with an optional trendline.
+# This function will take countries/regions/codes and will show the data with an optional trendline.
 def lineGraph(statistical_data, index_array, x_axis, y_axis, title, error_data=None, show_trend=True):
     fig, ax = plt.subplots(1, 1, figsize=(12, 6))
 
@@ -1086,18 +1085,18 @@ def deaths_by_age_group_region(df, who_regions,
 # ---------------------------------------------CALCULATION FUNCTIONS--------------------------------------------#
 # ---------------------------------------------CALCULATION FUNCTIONS--------------------------------------------#
 vaccinationmetaDF = pd.read_csv(
-    '/Users/nihatomerkaraca/Desktop/Programming for Data Science/database/vaccination-metadata.csv')
-vaccinationDF = pd.read_csv('/Users/nihatomerkaraca/Desktop/Programming for Data Science/database/vaccination-data.csv')
+    './database/vaccination-metadata.csv')
+vaccinationDF = pd.read_csv('database/vaccination-data.csv')
 GlobalDailyDF = pd.read_csv(
-    '/Users/nihatomerkaraca/Desktop/Programming for Data Science/database/WHO-COVID-19-global-daily-data.csv')
+    './database/WHO-COVID-19-global-daily-data.csv')
 GlobalWeeklyDF = pd.read_csv(
-    '/Users/nihatomerkaraca/Desktop/Programming for Data Science/database/WHO-COVID-19-global-data.csv')
+    './database/WHO-COVID-19-global-data.csv')
 GlobalHospDF = pd.read_csv(
-    '/Users/nihatomerkaraca/Desktop/Programming for Data Science/database/WHO-COVID-19-global-hosp-icu-data.csv')
+    './database/WHO-COVID-19-global-hosp-icu-data.csv')
 GlobalMontlyDeathDF = pd.read_csv(
-    '/Users/nihatomerkaraca/Desktop/Programming for Data Science/database/WHO-COVID-19-global-monthly-death-by-age-data.csv')
+    './database/WHO-COVID-19-global-monthly-death-by-age-data.csv')
 GlobalTableDF = pd.read_csv(
-    '/Users/nihatomerkaraca/Desktop/Programming for Data Science/database/WHO-COVID-19-global-table-data.csv')
+    './database/WHO-COVID-19-global-table-data.csv')
 
 user_input = getUserInput()
 
