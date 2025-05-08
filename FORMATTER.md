@@ -42,6 +42,58 @@ countryOrRegionWrapper.py:1:0: W0611: Unused pandas imported as pd (unused-impor
 
 -----------------------------------
 Your code has been rated at 0.00/10
+
+************* Module streamlitApp
+streamlitApp.py:3:19: C0303: Trailing whitespace (trailing-whitespace)
+streamlitApp.py:17:0: C0303: Trailing whitespace (trailing-whitespace)
+streamlitApp.py:21:59: C0303: Trailing whitespace (trailing-whitespace)
+streamlitApp.py:24:125: C0303: Trailing whitespace (trailing-whitespace)
+streamlitApp.py:24:0: C0301: Line too long (125/100) (line-too-long)
+streamlitApp.py:25:0: C0303: Trailing whitespace (trailing-whitespace)
+streamlitApp.py:34:26: C0303: Trailing whitespace (trailing-whitespace)
+streamlitApp.py:38:28: C0303: Trailing whitespace (trailing-whitespace)
+streamlitApp.py:45:0: C0301: Line too long (106/100) (line-too-long)
+streamlitApp.py:47:39: C0303: Trailing whitespace (trailing-whitespace)
+streamlitApp.py:58:39: C0303: Trailing whitespace (trailing-whitespace)
+streamlitApp.py:65:42: C0303: Trailing whitespace (trailing-whitespace)
+streamlitApp.py:76:0: C0301: Line too long (109/100) (line-too-long)
+streamlitApp.py:82:44: C0303: Trailing whitespace (trailing-whitespace)
+streamlitApp.py:88:43: C0303: Trailing whitespace (trailing-whitespace)
+streamlitApp.py:99:0: C0301: Line too long (133/100) (line-too-long)
+streamlitApp.py:101:0: C0303: Trailing whitespace (trailing-whitespace)
+streamlitApp.py:1:0: C0114: Missing module docstring (missing-module-docstring)
+streamlitApp.py:1:0: C0103: Module name "streamlitApp" doesn't conform to snake_case naming style (invalid-name)
+streamlitApp.py:4:0: W0401: Wildcard import rtStatistics (wildcard-import)
+streamlitApp.py:5:0: W0401: Wildcard import deathRate (wildcard-import)
+streamlitApp.py:6:0: W0401: Wildcard import importData (wildcard-import)
+streamlitApp.py:18:0: C0116: Missing function or method docstring (missing-function-docstring)
+streamlitApp.py:23:4: W0621: Redefining name 'start_date' from outer scope (line 104) (redefined-outer-name)
+streamlitApp.py:24:4: W0621: Redefining name 'end_date' from outer scope (line 104) (redefined-outer-name)
+streamlitApp.py:31:0: C0116: Missing function or method docstring (missing-function-docstring)
+streamlitApp.py:39:4: W0621: Redefining name 'who_regions' from outer scope (line 105) (redefined-outer-name)
+streamlitApp.py:56:0: C0116: Missing function or method docstring (missing-function-docstring)
+streamlitApp.py:79:0: C0116: Missing function or method docstring (missing-function-docstring)
+streamlitApp.py:2:0: C0411: standard import "os" should be placed before third party import "streamlit" (wrong-import-order)
+streamlitApp.py:4:0: W0614: Unused import(s) np, rt_country, rt_region and country_or_region from wildcard import of rtStatistics (unused-wildcard-import)
+streamlitApp.py:5:0: W0614: Unused import(s) death_rate_country and death_rate_region from wildcard import of deathRate (unused-wildcard-import)
+streamlitApp.py:6:0: W0614: Unused import(s) requests, DataImporter, url, filename and global_daily_data_object from wildcard import of importData (unused-wildcard-import)
+
+************* Module importData
+importData.py:2:19: C0303: Trailing whitespace (trailing-whitespace)
+importData.py:3:9: C0303: Trailing whitespace (trailing-whitespace)
+importData.py:29:61: C0303: Trailing whitespace (trailing-whitespace)
+importData.py:33:41: C0303: Trailing whitespace (trailing-whitespace)
+importData.py:1:0: C0114: Missing module docstring (missing-module-docstring)
+importData.py:1:0: C0103: Module name "importData" doesn't conform to snake_case naming style (invalid-name)
+importData.py:11:23: W0621: Redefining name 'url' from outer scope (line 36) (redefined-outer-name)
+importData.py:11:28: W0621: Redefining name 'filename' from outer scope (line 37) (redefined-outer-name)
+importData.py:19:4: C0116: Missing function or method docstring (missing-function-docstring)
+importData.py:22:4: C0116: Missing function or method docstring (missing-function-docstring)
+importData.py:25:19: W3101: Missing timeout argument for method 'requests.get' can cause your program to hang indefinitely (missing-timeout)
+importData.py:31:4: C0116: Missing function or method docstring (missing-function-docstring)
+importData.py:36:0: C0103: Constant name "url" doesn't conform to UPPER_CASE naming style (invalid-name)
+importData.py:37:0: C0103: Constant name "filename" doesn't conform to UPPER_CASE naming style (invalid-name)
+importData.py:3:0: C0411: standard import "os" should be placed before third party import "pandas" (wrong-import-order)
 ```
 
 ## Fixed Issues
@@ -98,25 +150,46 @@ import pandas as pd
 
 ```
 
-###  4. Fixed singleton comparison with None
+###  4. Improved import order
 ```python
 #Before
+************* Module streamlitApp
+import streamlit as st
+import os
 
 #After
+import os
+import streamlit as st
 ```
 
-###  5. Removed unnecessary parentheses in if statements
+###  5. Rename constants to conform to naming conventions
 ```python
+************* Module importData
+#Before
+url = 'https://srhdpeuwpubsa.blob.core.windows.net/whdh/COVID/WHO-COVID-19-global-daily-data.csv'
+filename = "WHO-COVID-19-global-daily-data.csv"
+
 # After
+URL = 'https://srhdpeuwpubsa.blob.core.windows.net/whdh/COVID/WHO-COVID-19-global-daily-data.csv'
+FILENAME = "WHO-COVID-19-global-daily-data.csv"
 
 ```
 ## Result Pylint Score
-**********Moodule deathRate
-Your code has been rated at 6.67/10
-**********Moodule rtStatistics
-Your code has been rated at 6.45/10
-************* Module countryOrRegionWrapper
-Your code has been rated at 2.50/10
+**********Module deathRate  
+Your code has been rated at 6.67/10  
+   
+**********Module rtStatistics  
+Your code has been rated at 6.45/10  
+  
+************* Module countryOrRegionWrapper  
+Your code has been rated at 2.50/10  
+  
+************* Module streamlitApp  
+Your code has been rated at 5.65/10  
+
+************* Module importData   
+Your code has been rated at 6.40/10
+
 
 
 
