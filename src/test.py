@@ -1,5 +1,5 @@
-from rtStatistics import *
-from deathRate import *
+from statistics.rtStatistics import *
+from statistics.deathRate import *
 
 GlobalDailyDF = pd.read_csv('./CovidProject/data/WHO-COVID-19-global-daily-data.csv')
 
