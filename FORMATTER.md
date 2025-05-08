@@ -234,7 +234,7 @@ Your code has been rated at 5.80/10
 
 ## Fixed Issues
 
-I've fixed the following 5 issues reported by pylint:
+We've fixed the following 5 issues reported by pylint:
 
 ###  1. Removed unused import
 ```python
