@@ -4,6 +4,7 @@
 - We have updated our functions for death rate and Rt, to reflect the reflect the new structure and added the visualistions.
 
 ## Pylint
+Changes found under formatter.md
 
 ## Principles of abstraction and decomposition 
 From the beginning of the project we have aimed to design our code with abstraction and decomposition in mind. 
