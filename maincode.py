@@ -1,5 +1,4 @@
 from __future__ import annotations
-from calendar import month
 from copy import deepcopy
 import numpy as np
 import pandas as pd
@@ -399,17 +398,29 @@ def lineGraph(statistical_data, index_array, x_axis, y_axis, title, error_data=N
 
 # Given the list of countries or regions in case it doesn't exist in the database that is searched
 # it excludes them and returns a new array. Functions under that are its specified versions.
-def DataBaseValidator(df, arrayTouse, columnChecked):
-    validArray = []
-    if columnChecked not in df.columns:
+def database_validator(df, array_to_use, column_checked):
+    """
+    Validates which items in the input array exist in the specified column of the dataframe.
+    
+    Args:
+        df (DataFrame): The dataframe to check against
+        array_to_use (list): List of values to validate
+        column_checked (str): Name of the column to check for values
+        
+    Returns:
+        list: List of valid values that exist in the dataframe column
+        None: If the column doesn't exist in the dataframe
+    """
+    valid_array = []
+    if column_checked not in df.columns:
         return None
-    if not df[columnChecked].isin(arrayTouse).all():
-        for c in arrayTouse:
-            if c not in df[columnChecked].unique():
+    if not df[column_checked].isin(array_to_use).all():
+        for c in array_to_use:
+            if c not in df[column_checked].unique():
                 print(f"{c} is not in the dataframe")
             else:
-                validArray.append(c)
-    return validArray
+                valid_array.append(c)
+    return valid_array
 
 
 # This function returns the entries of a specific data provided with an array, indexTo search,
@@ -418,7 +429,7 @@ def DataBaseValidator(df, arrayTouse, columnChecked):
 def entryCounter(df, arrayTouse, columnChecked, newColumnName):
     # ENSURING NO SHALLOW COPIES
     copyDataBase = deepcopy(df)
-    validArray = DataBaseValidator(copyDataBase, arrayTouse, columnChecked)
+    validArray = database_validator(copyDataBase, arrayTouse, columnChecked)
 
     if validArray is None or len(validArray) == 0:
         return None
@@ -436,7 +447,7 @@ def entryCounter(df, arrayTouse, columnChecked, newColumnName):
 
 def numberAuthorizationProduct(df, products):
     fixedDF = df.copy()
-    validated_countries = DataBaseValidator(fixedDF, products, "PRODUCT_NAME")
+    validated_countries = database_validator(fixedDF, products, "PRODUCT_NAME")
     if validated_countries is None or len(validated_countries) == 0:
         return None
 
@@ -507,12 +518,25 @@ def getClosestDate(df, selectedDate, dateColumnName):
 # Death rate = Deaths / Cases * 100
 # This function will calculate the death rate for a given list of country codes (e.g., ['US', 'DE']). 2 letter code
 def deathRateCountry(df, country_codes):
+    """
+    Calculate the death rate (CFR) for a given list of country codes.
+    
+    Death rate = (Cumulative deaths / Cumulative cases) * 100
+    
+    Args:
+        df (DataFrame): DataFrame containing COVID-19 data
+        country_codes (list): List of 2-letter country codes (e.g., ['US', 'DE'])
+    
+    Returns:
+        Series: A Series with country codes as index and death rates as values
+               Returns None if country_codes is None, empty, or no valid codes found
+    """
     if country_codes is None or len(country_codes) == 0:
         return None
 
     # Validate country codes
     #
-    valid_codes = DataBaseValidator(df, country_codes, "Country_code")
+    valid_codes = database_validator(df, country_codes, "Country_code")
     if valid_codes is None or len(valid_codes) == 0:
         return None
     df_countries = df[df['Country_code'].isin(valid_codes)].copy()
@@ -537,13 +561,13 @@ def averageDeathRate(df):
 # Death rate = Deaths / Cases * 100
 # this function will calculate the death rate for a given region or regions as an array.
 def deathRateRegion(df, regions):
-    if (regions == None or len(regions) == 0):
+    if (regions is None or len(regions) == 0):
         return None
     # Check if the all countries are in the dataframe
-    validRegions = DataBaseValidator(df, regions, "WHO_region")
+    validRegions = database_validator(df, regions, "WHO_region")
 
 
-    if (validRegions == None or len(validRegions) == 0):
+    if (validRegions is None or len(validRegions) == 0):
         return None
 
     df_regions = df[df['WHO_region'].isin(validRegions)].copy()
@@ -583,7 +607,7 @@ def DeathRateRequest(countries):
 # End date is included but in case not given last date will be used
 # Start date is included, but if start date > end date, it will be set to the first date in the dataframe
 def averageDailyCases(df, country_codes, start_date, end_date=None):
-    validated_codes = DataBaseValidator(df, country_codes, "Country_code")
+    validated_codes = database_validator(df, country_codes, "Country_code")
     if validated_codes is None or len(validated_codes) == 0:
         return None
     df_countries = df[df['Country_code'].isin(validated_codes)].copy()
@@ -598,7 +622,7 @@ def averageDailyCases(df, country_codes, start_date, end_date=None):
     print(start_date, end_date)
     df_countries_filtered = df_countries[
         (df_countries["Date_reported"] >= start_date) & (df_countries["Date_reported"] <= end_date)]
-    if (df_countries_filtered.empty):
+    if df_countries_filtered.empty:
         print("Could not find any countries within the date range")
         return None
 
@@ -612,7 +636,7 @@ def averageDailyCases(df, country_codes, start_date, end_date=None):
 # End date is included but in case not given last date will be used
 # Start date is included, but if start date > end date, it will be set to the first date in the dataframe
 def averageDailyDeath(df, country_codes, start_date, end_date=None):
-    validated_codes = DataBaseValidator(df, country_codes, "Country_code")
+    validated_codes = database_validator(df, country_codes, "Country_code")
 
     if validated_codes is None or len(validated_codes) == 0:
         return None
@@ -640,7 +664,7 @@ def averageDailyDeath(df, country_codes, start_date, end_date=None):
 # End date is included but in case not given last date will be used
 # Start date is included, but if start date > end date, it will be set to the first date in the dataframe
 def averageDailyRegionalCases(df, regions, start_date, end_date=None):
-    validated_regions = DataBaseValidator(df, regions, "WHO_region")
+    validated_regions = database_validator(df, regions, "WHO_region")
     if validated_regions is None or len(validated_regions) == 0:
         return None
     df_regions = df[df['WHO_region'].isin(validated_regions)].copy()
@@ -664,7 +688,7 @@ def averageDailyRegionalCases(df, regions, start_date, end_date=None):
 # End date is included but in case not given last date will be used
 # Start date is included, but if start date > end date, it will be set to the first date in the dataframe
 def averageDailyRegionalDeath(df, regions, start_date, end_date=None):
-    validated_regions = DataBaseValidator(df, regions, "WHO_region")
+    validated_regions = database_validator(df, regions, "WHO_region")
     if validated_regions is None or len(validated_regions) == 0:
         return None
     df_regions = df[df['WHO_region'].isin(validated_regions)].copy()
@@ -689,13 +713,13 @@ def averageDailyRegionalDeath(df, regions, start_date, end_date=None):
 # This function aimes to calculate the vaccination coverage for a given country or countries
 # Countries is an country array
 def vaccinationCoverageISO3(df, ISO3_countries):
-    if ISO3_countries == None or len(ISO3_countries) == 0:
+    if ISO3_countries is None or len(ISO3_countries) == 0:
         return None
     # Check if the all countries are in the dataframe
     fixedDF = df.copy()
     fixedDF = fixedDF.rename(columns={"COUNTRY": "Country"})
-    validated_countries = DataBaseValidator(fixedDF, ISO3_countries, "ISO3")
-    if validated_countries == None or len(validated_countries) == 0:
+    validated_countries = database_validator(fixedDF, ISO3_countries, "ISO3")
+    if validated_countries is None or len(validated_countries) == 0:
         return None
 
     df_countries = fixedDF[fixedDF['ISO3'].isin(validated_countries)].copy()
@@ -714,7 +738,7 @@ def totalVaccinationISO3(df, ISO3_countries):
     # Check if the all countries are in the dataframe
     fixedDF = df.copy()
     fixedDF = fixedDF.rename(columns={"COUNTRY": "Country"})
-    validated_countries = DataBaseValidator(fixedDF, ISO3_countries, "ISO3")
+    validated_countries = database_validator(fixedDF, ISO3_countries, "ISO3")
     if validated_countries == None or len(validated_countries) == 0:
         return None
 
@@ -738,7 +762,7 @@ def boosterDoseRateISO3(df, ISO3_countries):
 
     fixedDF = df.copy()
     fixedDF = fixedDF.rename(columns={"COUNTRY": "Country"})
-    validated_countries = DataBaseValidator(fixedDF, ISO3_countries, "ISO3")
+    validated_countries = database_validator(fixedDF, ISO3_countries, "ISO3")
     if validated_countries is None or len(validated_countries) == 0:
         return None
 
@@ -759,7 +783,7 @@ def totalVaccinationSummaryISO3(df, ISO3_countries):
 
     fixedDF = df.copy()
     fixedDF = fixedDF.rename(columns={"COUNTRY": "Country"})
-    validated_countries = DataBaseValidator(fixedDF, ISO3_countries, "ISO3")
+    validated_countries = database_validator(fixedDF, ISO3_countries, "ISO3")
     if validated_countries is None or len(validated_countries) == 0:
         return None
 
@@ -778,7 +802,7 @@ def numberAuthorizationISO3(df, ISO3_countries):
         return None
 
     fixedDF = df.copy()
-    validated_countries = DataBaseValidator(fixedDF, ISO3_countries, "ISO3")
+    validated_countries = database_validator(fixedDF, ISO3_countries, "ISO3")
     if validated_countries is None or len(validated_countries) == 0:
         return None
 
@@ -797,7 +821,7 @@ def numberAuthorizationISO3(df, ISO3_countries):
 # The time selections will be harder for this because there might not be data for those days so the time selection will be frst start date and end date will be assigned to their closest data entry.
 # Then the normal time interval selection conditions will be applied.
 def AverageHospitalizationWeeklyCountry(df, ISO3_countries, start_date, end_date):
-    validated_countries = DataBaseValidator(df, ISO3_countries, "Country_code")
+    validated_countries = database_validator(df, ISO3_countries, "Country_code")
     if validated_countries is None or len(validated_countries) == 0:
         return None
 
@@ -824,7 +848,7 @@ def AverageHospitalizationWeeklyCountry(df, ISO3_countries, start_date, end_date
 # The time selections will be harder for this because there might not be data for those days so the time selection will be frst start date and end date will be assigned to their closest data entry.
 # Then the normal time interval selection conditions will be applied.
 def AverageHospitalizationMonthlyCountry(df, ISO3_countries, start_date, end_date):
-    validated_countries = DataBaseValidator(df, ISO3_countries, "Country_code")
+    validated_countries = database_validator(df, ISO3_countries, "Country_code")
     if validated_countries is None or len(validated_countries) == 0:
         return None
 
@@ -912,7 +936,7 @@ def timeIntervalData(df, df_array, start_date, end_date, time_column_name, data_
         print("Missing expected column in dataset.")
         return None
 
-    df_array = DataBaseValidator(df, df_array, data_column_name)
+    df_array = database_validator(df, df_array, data_column_name)
     # Make sure the time column is in datetime format
     df_countries[time_column_name] = pd.to_datetime(df_countries[time_column_name])
 
@@ -920,7 +944,7 @@ def timeIntervalData(df, df_array, start_date, end_date, time_column_name, data_
     start_date,end_date = dateRangeValidator(df_countries, start_date, end_date,time_column_name)
 
 
-    df_filtered_array = DataBaseValidator(df_countries, df_array, data_column_name)
+    df_filtered_array = database_validator(df_countries, df_array, data_column_name)
 
     mask = (
             (df_countries[time_column_name] >= start_date) &
@@ -938,7 +962,7 @@ def deaths_by_age_group_country(df, ISO3_countries,
     if not ISO3_countries:
         return None
 
-    valid = DataBaseValidator(df, ISO3_countries, "Country_code")
+    valid = database_validator(df, ISO3_countries, "Country_code")
     if not valid:
         return None
 
@@ -964,7 +988,7 @@ def deaths_by_income(df, income_groups,
     if not income_groups:
         return None
 
-    valid = DataBaseValidator(df, income_groups, "Wb_income")
+    valid = database_validator(df, income_groups, "Wb_income")
     if not valid:
         return None
 
@@ -989,7 +1013,7 @@ def deaths_by_age_group_region(df, who_regions,
     if not who_regions:
         return None
 
-    valid = DataBaseValidator(df, who_regions, "Who_region")
+    valid = database_validator(df, who_regions, "Who_region")
     if not valid:
         return None
 
