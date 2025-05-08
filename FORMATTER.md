@@ -153,6 +153,8 @@ def averageDailyCases(df, country_codes, start_date, end_date=None):
         print("Could not find any countries within the date range")
         return None
 ```
+## Result Pylint Score
+Your code has been rated at 6.02/10 (previous run: 6.02/10, +0.00)
 
 ## Conclusion
 
