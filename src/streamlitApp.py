@@ -5,6 +5,7 @@ import pandas as pd
 
 # import 
 from importData import DataImporter
+from statistics.countryOrRegionWrapper import DateAndLocationFilter
 from statistics.rtStatistics import rt
 from statistics.deathRate import death_rate
 

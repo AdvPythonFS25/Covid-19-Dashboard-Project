@@ -8,4 +8,5 @@ __all__ = ['country_or_region',
            'death_rate', 
            'rt_country', 
            'rt_region', 
-           'rt']
+           'rt',
+           'DateAndLocationFilter']
