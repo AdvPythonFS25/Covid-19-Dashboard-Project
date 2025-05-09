@@ -8,7 +8,7 @@ class DataImporter:
     This class dowloads files from URL to the data directory 
     if not already present.
     """
-    def __init__(self, url, filename, data_dir='./data'):
+    def __init__(self, url, filename, data_dir):
         self.url = url
         self.filename = filename
         self.data_dir = data_dir
@@ -36,5 +36,8 @@ class DataImporter:
 URL = 'https://srhdpeuwpubsa.blob.core.windows.net/whdh/COVID/WHO-COVID-19-global-daily-data.csv'
 FILENAME = "WHO-COVID-19-global-daily-data.csv"
 
-global_daily_data_object = DataImporter(url=URL, filename=FILENAME)
-df = global_daily_data_object.load_data()
+cwd = os.getcwd()
+print(cwd)
+
+#global_daily_data_object = DataImporter(url=URL, filename=FILENAME)
+#df = global_daily_data_object.load_data()

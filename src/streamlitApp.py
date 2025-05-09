@@ -3,7 +3,8 @@ import sys
 import streamlit as st
 import pandas as pd
 
-    # import 
+# import 
+from importData import DataImporter
 from statistics.rtStatistics import rt
 from statistics.deathRate import death_rate
 
@@ -12,6 +13,15 @@ def main():
     # Get Paths 
     SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
     ROOT_DIR = os.path.dirname(SCRIPT_DIR)
+    DATA_DIR = daily_data_path = os.path.join(ROOT_DIR, 'data')
+    # other constant variables
+    URL = 'https://srhdpeuwpubsa.blob.core.windows.net/whdh/COVID/WHO-COVID-19-global-daily-data.csv'
+    GLOBAL_DAILY_DATA_FILE = "WHO-COVID-19-global-daily-data.csv"
+
+    daily_data_path = os.path.join(ROOT_DIR, 'data', 'WHO-COVID-19-global-daily-data.csv')
+    global_daily_data_object = DataImporter(url=URL, filename=GLOBAL_DAILY_DATA_FILE, data_dir=DATA_DIR)
+    daily_df = global_daily_data_object.load_data()
+
 
     # Set page config
     st.set_page_config(page_title="COVID-19 Evolution Dashboard", layout="wide")
@@ -77,13 +87,12 @@ def sidebar_location_selector(df):
 
 def rt_number_sidebar_button(df, country_names, who_regions, start_date, end_date):
     if st.sidebar.checkbox("rt number"):
-        reproduction_number = rt(df=df, 
+        rt_value, rt_df = rt(df=df, 
                                       country_names=country_names,
                                       who_regions=who_regions,
                                       start_date = start_date,
                                       end_date=end_date)
-        rt_value = reproduction_number[0]
-        rt_df = reproduction_number[1]
+        
         st.subheader("The Rt number over time") 
         st.dataframe(rt_value)
 
@@ -101,12 +110,12 @@ def rt_number_sidebar_button(df, country_names, who_regions, start_date, end_dat
 def death_rate_sidebar_button(df, country_names, who_regions, start_date, end_date):
     if st.sidebar.checkbox("Death Rate"):
 
-        death_rate_value = death_rate(df=df, 
+        death_rate_value, death_rate_df = death_rate(df=df, 
                                       country_names=country_names,
                                       who_regions=who_regions,
                                       start_date = start_date,
-                                      end_date=end_date)[0]
-        death_rate_df = death_rate(df, country_names, who_regions, start_date, end_date)[1]
+                                      end_date=end_date)
+        
         st.subheader("The Death Rate Over Time") 
         st.dataframe(death_rate_value)
 
