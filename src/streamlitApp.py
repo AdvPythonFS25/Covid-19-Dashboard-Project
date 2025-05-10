@@ -29,6 +29,7 @@ def main():
 
     # maybe change this to a seperate processing class (not sure yet)
     daily_df = global_daily_data_object.set_datetime(daily_df) 
+    
 
     # Set page config
     st.set_page_config(page_title="COVID-19 Evolution Dashboard", layout="wide")
@@ -43,11 +44,6 @@ def main():
                               start_date=start_date, 
                               end_date=end_date)
     
-    daily_deaths_sidebar_button(df=daily_df, 
-                              countries=country_names,
-                              who_regions=who_regions, 
-                              start_date=start_date, 
-                              end_date=end_date)
     
     rt_number_sidebar_button(df=daily_df, 
                               countries=country_names,
@@ -55,11 +51,15 @@ def main():
                               start_date=start_date, 
                               end_date=end_date)
     
-    death_rate_sidebar_button(df=daily_df, 
-                              countries=country_names,
+    display_daily_data_statistic(df=daily_df, 
+                              countries=country_names, 
                               who_regions=who_regions, 
                               start_date=start_date, 
-                              end_date=end_date)
+                              end_date=end_date, 
+                              stat_class=AverageDailyDeaths, 
+                              stat_title="Average Daily Deaths", 
+                              plot_funcs=None,
+                              stat_method_name="avg_daily_deaths")
     
 
 # run webapp with streamlit run /Users/lysander/Documents/CovidProject/streamlitApp.py
@@ -126,10 +126,23 @@ def rt_number_sidebar_button(df, countries, who_regions, start_date, end_date):
         region_or_country=selected_column
         )
     
-    # show what you want to show girl
     st.subheader("Average Reproductive Number")
+    
+    col1, col2 = st.columns(2)
+
+    with col1:
+        avg_df = daily_cases_obj.avg_rt_number()
+        st.dataframe(avg_df) 
+
+    with col2:
+        # to be preplace with some graph
+        st.text('some graph showing variation : boxplot/violin plot or overlayed histograms')
+
+    # To be replaced with some other graph
     avg_df = daily_cases_obj.avg_rt_number()
     st.dataframe(avg_df)
+
+    st.text('some graph over time : lineplot. fix bug when plotting by region to many things  ')
 
 def death_rate_sidebar_button(df, countries, who_regions, start_date, end_date):
     if not st.sidebar.checkbox("Death Rate"):
@@ -212,6 +225,48 @@ def daily_deaths_sidebar_button(df, countries, who_regions, start_date, end_date
     avg_df = daily_deaths_obj.avg_daily_deaths()
     st.dataframe(avg_df)
 
+def display_daily_data_statistic(df, countries, who_regions, start_date, end_date, stat_class, stat_title, plot_funcs, stat_method_name):
+
+    filtered_obj = DateAndLocationFilter(
+        df=df, 
+        countries=countries, 
+        regions=who_regions, 
+        start_date=start_date, 
+        end_date=end_date)
+    
+    filtered_df = filtered_obj.get_filtered_df()
+    selected_column = filtered_obj.choose_country_or_who_region()
+
+    # make little checkbox
+    show_stat = st.sidebar.checkbox(stat_title)
+
+    if not show_stat:
+        return  # Exit if the button is not clicked
+
+    if not selected_column:  # dont use 'is none'
+        return  # exit if no country or who region is selected
+    
+    # make the object for each function (ReproductiveNumber, DeathRate, see statistc dir for all functions)
+    stat_obj = stat_class(
+        filtered_df=filtered_df, 
+        region_or_country=selected_column
+    )
+    
+    # Layout
+    st.subheader(stat_title)
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        stat_df = getattr(stat_obj, stat_method_name)() # 
+        st.dataframe(stat_df)
+    
+    with col2:
+        # to be preplace with some graph
+        st.text('some graph showing variation : boxplot/violin plot or overlayed histograms')
+
+    # other plot
+    st.text('some other graph showing stuff over time : line plot')
 
 
 if __name__ == "__main__":
