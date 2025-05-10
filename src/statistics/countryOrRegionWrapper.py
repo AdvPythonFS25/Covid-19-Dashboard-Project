@@ -16,7 +16,7 @@ def country_or_region(countries_function, regions_function,
 
 
 class DateAndLocationFilter:
-    
+
     def __init__(self, df, start_date, end_date, countries, regions):
         self.df = df
         self.start_date = start_date

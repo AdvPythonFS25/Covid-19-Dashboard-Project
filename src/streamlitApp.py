@@ -8,6 +8,7 @@ from importData import DataImporter
 from statistics.countryOrRegionWrapper import DateAndLocationFilter
 from statistics.rtStatistics import rt
 from statistics.deathRate import death_rate
+from statistics.averageDailyCases import AverageDailyCases
 
 
 def main():
@@ -45,6 +46,13 @@ def main():
                               who_regions=who_regions, 
                               start_date=start_date, 
                               end_date=end_date)
+        
+    daily_cases_sidebar_button(df=daily_df, 
+                              countries=country_names,
+                              who_regions=who_regions, 
+                              start_date=start_date, 
+                              end_date=end_date)
+    
 
 # run webapp with streamlit run /Users/lysander/Documents/CovidProject/streamlitApp.py
     
@@ -129,6 +137,24 @@ def death_rate_sidebar_button(df, country_names, who_regions, start_date, end_da
             return
 
         st.line_chart(data=death_rate_df, x = 'Date_reported', y='death_rate', color=colouring, x_label='Date', y_label='Death Rate')
+
+def daily_cases_sidebar_button(df, countries, who_regions, start_date, end_date):
+    if st.sidebar.checkbox("Daily Cases"):
+        # Filtered instance and get date time filtered df
+        filtered_df_obj = DateAndLocationFilter(df=df, countries=countries, regions=who_regions, start_date=start_date, end_date=end_date)
+        filtered_df = filtered_df_obj.date_filter()
+        region_or_country = filtered_df_obj.choose_country_or_who_region()
+
+       # daily cases obj 
+        daily_cases_obj = AverageDailyCases(filtered_df=filtered_df, 
+                                            region_or_country=region_or_country)
+        st.text(daily_cases_obj.avg_daily_cases())
+        
+
+
+
+
+
 
 
 if __name__ == "__main__":

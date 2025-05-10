@@ -15,7 +15,7 @@ class AverageDailyCases:
         avg_cases = avg_cases.rename("Average")
         return avg_cases.round(2)
 
-    def avg_daily_cases_hist(self): # locations are either regions or countries
+    def daily_cases_histogram(self): # locations are either regions or countries
 
         unique_entries = self.filtered_df[self.region_or_country].nunique()
 
