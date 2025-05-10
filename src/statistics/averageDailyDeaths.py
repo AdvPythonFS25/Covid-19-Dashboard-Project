@@ -16,8 +16,8 @@ class AverageDailyCases:
             st.error("Invalid selection for country or region.")
             return None
         
-        avg_cases = self.filtered_df.groupby(self.region_or_country)["New_cases"].mean()
-        avg_cases = avg_cases.rename("Average Daily Cases")
+        avg_cases = self.filtered_df.groupby(self.region_or_country)["New_deaths"].mean()
+        avg_cases = avg_cases.rename("Average Daily Deaths")
         return avg_cases.round(2)
 
     def daily_cases_histogram(self): # locations are either regions or countries
@@ -26,7 +26,7 @@ class AverageDailyCases:
 
         if unique_entries == 1:
             fig, ax = plt.subplots(1, 1, figsize=(19, 6))
-            ax.hist(self.filtered_df["New_cases"], colour= 'skyblue')
+            ax.hist(self.filtered_df["New_deaths"], colour= 'skyblue')
 
             return st.pyplot(fig)
         elif unique_entries > 1 and unique_entries <= 15:
@@ -36,13 +36,13 @@ class AverageDailyCases:
             # make hist for every selected entry
             for location in unique_entries:
                 location_df = self.filtered_df[self.filteed_df[self.region_or_country] == location]
-                ax.hist(location_df["New_cases"], 
+                ax.hist(location_df["New_deaths"], 
                         bins=30, alpha=0.5, label=location, stacked=True, edgecolor='black')
                 
             return st.pyplot(fig) 
         elif unique_entries > 15: # NEED TO FIX
             fig, ax = plt.subplots(1, 1, figsize=(19, 6))
-            ax.hist(self.filtered_df["New_cases"], colour= 'skyblue')
+            ax.hist(self.filtered_df["New_deaths"], colour= 'skyblue')
 
 
 
