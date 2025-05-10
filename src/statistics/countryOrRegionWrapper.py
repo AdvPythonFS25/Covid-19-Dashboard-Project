@@ -1,4 +1,5 @@
 import streamlit as st
+import pandas as pd
 
 def country_or_region(countries_function, regions_function,
                        df, country_names, who_regions, start_date, end_date):
@@ -37,13 +38,19 @@ class DateAndLocationFilter:
         else:
             st.error("No country or region selected.")
 
-    def date_filter(self):
-        date_filtered_df = self.df[
-            (self.df["Date_reported"] >= self.start_date) &
-            (self.df["Date_reported"] <= self.end_date)
+    def date_location_filter(self):
+
+        filtered_df = self.df[
+            (self.df["Date_reported"] >= pd.to_datetime(self.start_date)) &
+            (self.df["Date_reported"] <= pd.to_datetime(self.end_date))
         ]
 
-        return date_filtered_df
+        if len(self.countries) > 0:
+            filtered_df = filtered_df[filtered_df['Country'].isin(self.countries)]
+        elif len(self.regions) > 0:
+            filtered_df = filtered_df[filtered_df['WHO_region'].isin(self.regions)]
+
+        return filtered_df
     
 
 

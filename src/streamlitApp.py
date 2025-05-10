@@ -12,25 +12,25 @@ from statistics.averageDailyCases import AverageDailyCases
 
 
 def main():
-    # Get Paths 
+    # Get Paths
     SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
     ROOT_DIR = os.path.dirname(SCRIPT_DIR)
-    DATA_DIR = daily_data_path = os.path.join(ROOT_DIR, 'data')
-    # other constant variables
+    DATA_DIR = os.path.join(ROOT_DIR, 'data')
+
+    # Constant urls and Filenames
     URL = 'https://srhdpeuwpubsa.blob.core.windows.net/whdh/COVID/WHO-COVID-19-global-daily-data.csv'
     GLOBAL_DAILY_DATA_FILE = "WHO-COVID-19-global-daily-data.csv"
 
-    daily_data_path = os.path.join(ROOT_DIR, 'data', 'WHO-COVID-19-global-daily-data.csv')
+
+    # create Dataimporter instance and load data
     global_daily_data_object = DataImporter(url=URL, filename=GLOBAL_DAILY_DATA_FILE, data_dir=DATA_DIR)
     daily_df = global_daily_data_object.load_data()
 
+    # maybe change this to a seperate processing class (not sure yet)
+    daily_df = global_daily_data_object.set_datetime(daily_df) 
 
     # Set page config
     st.set_page_config(page_title="COVID-19 Evolution Dashboard", layout="wide")
-
-    # 
-    daily_data_path = os.path.join(ROOT_DIR, 'data', 'WHO-COVID-19-global-daily-data.csv')
-    daily_df = pd.read_csv(daily_data_path)
 
     start_date, end_date = sidebar_date_selector(df=daily_df)
     country_names, who_regions = sidebar_location_selector(df=daily_df)
@@ -142,13 +142,13 @@ def daily_cases_sidebar_button(df, countries, who_regions, start_date, end_date)
     if st.sidebar.checkbox("Daily Cases"):
         # Filtered instance and get date time filtered df
         filtered_df_obj = DateAndLocationFilter(df=df, countries=countries, regions=who_regions, start_date=start_date, end_date=end_date)
-        filtered_df = filtered_df_obj.date_filter()
+        filtered_df = filtered_df_obj.date_location_filter()
         region_or_country = filtered_df_obj.choose_country_or_who_region()
 
        # daily cases obj 
         daily_cases_obj = AverageDailyCases(filtered_df=filtered_df, 
                                             region_or_country=region_or_country)
-        st.text(daily_cases_obj.avg_daily_cases())
+        st.dataframe(daily_cases_obj.avg_daily_cases())
         
 
 

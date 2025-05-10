@@ -31,6 +31,15 @@ class DataImporter:
     def load_data(self):
         self.download_data()
         return pd.read_csv(self.filepath) 
+    
+    def set_datetime(self, df):
+        """Fixes the datetime columns in the dataframe."""
+        # Convert 'Date_reported' column to datetime
+        df['Date_reported'] = pd.to_datetime(df['Date_reported'], errors='coerce')
+        return df
+    
+    
+    
 
 
 URL = 'https://srhdpeuwpubsa.blob.core.windows.net/whdh/COVID/WHO-COVID-19-global-daily-data.csv'
