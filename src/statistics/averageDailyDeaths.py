@@ -3,24 +3,24 @@ import numpy as np
 import streamlit as st
 import matplotlib.pyplot as plt
 
-class AverageDailyCases:
+class AverageDailyDeaths:
 
     def __init__(self, filtered_df, region_or_country): # built for daily DF filtered by date and region
         self.filtered_df = filtered_df.copy()
         self.region_or_country = region_or_country
 
-    def avg_daily_cases(self):
+    def avg_daily_deaths(self):
         self.filtered_df.fillna(0, inplace=True)
         # if no values are selected for country and region
         if self.region_or_country not in ["Country", "WHO_region"]:
             st.error("Invalid selection for country or region.")
             return None
         
-        avg_cases = self.filtered_df.groupby(self.region_or_country)["New_deaths"].mean()
-        avg_cases = avg_cases.rename("Average Daily Deaths")
-        return avg_cases.round(2)
+        avg_deaths = self.filtered_df.groupby(self.region_or_country)["New_deaths"].mean()
+        avg_deaths = avg_deaths.rename("Average Daily Deaths")
+        return avg_deaths.round(2)
 
-    def daily_cases_histogram(self): # locations are either regions or countries
+    def daily_deaths_histogram(self): # locations are either regions or countries
 
         unique_entries = self.filtered_df[self.region_or_country].nunique()
 
