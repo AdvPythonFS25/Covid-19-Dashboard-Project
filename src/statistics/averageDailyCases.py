@@ -11,6 +11,11 @@ class AverageDailyCases:
 
     def avg_daily_cases(self):
         self.filtered_df.fillna(0, inplace=True)
+        # if no values are selected for country and region
+        if self.region_or_country not in ["Country", "WHO_region"]:
+            st.error("Invalid selection for country or region.")
+            return None
+        
         avg_cases = self.filtered_df.groupby(self.region_or_country)["New_cases"].mean()
         avg_cases = avg_cases.rename("Average")
         return avg_cases.round(2)
