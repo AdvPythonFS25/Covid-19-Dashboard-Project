@@ -1,40 +1,82 @@
-# this should be a code that downloads data from online if its not already present
+# importData.py  – identical class, plus a tiny registry section
+
 import os
-import pandas as pd 
+import pandas as pd
 import requests
 
 class DataImporter:
     """
-    This class dowloads files from URL to the data directory 
-    if not already present.
+    Downloads a single CSV from `url` into `data_dir/filename`
+    if not already present, then returns it as a DataFrame.
     """
     def __init__(self, url, filename, data_dir='./data'):
         self.url = url
         self.filename = filename
         self.data_dir = data_dir
-        # make path to that file with data directory
         self.filepath = os.path.join(self.data_dir, self.filename)
-
 
     def check_for_data(self):
         return os.path.exists(self.filepath)
 
     def download_data(self):
         if not self.check_for_data():
-            print('Data is not present. Downloading to data directory.')
+            print(f'Downloading {self.filename} …')
+            self._ensure_dir()
             data = requests.get(self.url)
-            with open (self.filepath, 'wb') as file: # must use write binary or gets a weird error
-                file.write(data.content)
-        else:
-            print('Data is already present. Not dowloading.')  
+            with open(self.filepath, 'wb') as f:
+                f.write(data.content)
+
+    def _ensure_dir(self):
+        if not os.path.exists(self.data_dir):
+            os.makedirs(self.data_dir, exist_ok=True)
 
     def load_data(self):
         self.download_data()
-        return pd.read_csv(self.filepath) 
+        return pd.read_csv(self.filepath)
 
 
-URL = 'https://srhdpeuwpubsa.blob.core.windows.net/whdh/COVID/WHO-COVID-19-global-daily-data.csv'
-FILENAME = "WHO-COVID-19-global-daily-data.csv"
+SOURCES = {
+    "global_daily": (
+        "https://raw.githubusercontent.com/omerkaraca-fire/data/main/WHO-COVID-19-global-daily-data.csv",
+        "WHO-COVID-19-global-daily-data.csv"
+    ),
+    "global_data": (
+        "https://raw.githubusercontent.com/omerkaraca-fire/data/main/WHO-COVID-19-global-data.csv",
+        "WHO-COVID-19-global-data.csv"
+    ),
+    "global_hosp": (
+        "https://raw.githubusercontent.com/omerkaraca-fire/data/main/WHO-COVID-19-global-hosp-icu-data.csv",
+        "WHO-COVID-19-global-hosp-icu-data.csv"
+    ),
+    "global_monthly_death": (
+        "https://raw.githubusercontent.com/omerkaraca-fire/data/main/WHO-COVID-19-global-monthly-death-by-age-data.csv",
+        "WHO-COVID-19-global-monthly-death-by-age-data.csv"
+    ),
+    "global_table": (
+        "https://raw.githubusercontent.com/omerkaraca-fire/data/main/WHO-COVID-19-global-table-data.csv",
+        "WHO-COVID-19-global-table-data.csv"
+    ),
+    "vaccination_data": (
+        "https://raw.githubusercontent.com/omerkaraca-fire/data/main/vaccination-data.csv",
+        "vaccination-data.csv"
+    ),
+    "vaccination_meta": (
+        "https://raw.githubusercontent.com/omerkaraca-fire/data/main/vaccination-metadata.csv",
+        "vaccination-metadata.csv"
+    ),
+}
 
-global_daily_data_object = DataImporter(url=URL, filename=FILENAME)
-df = global_daily_data_object.load_data()
+# helper so the rest of your code can do:
+#   from importData import get_data
+#   df_daily = get_data("global_daily")
+_importers = {
+    key: DataImporter(url, filename)
+    for key, (url, filename) in SOURCES.items()
+}
+
+def get_data(name):
+    """
+    name must be one of: global_daily, global_hosp,
+    vaccination_data, vaccination_meta
+    """
+    return _importers[name].load_data()

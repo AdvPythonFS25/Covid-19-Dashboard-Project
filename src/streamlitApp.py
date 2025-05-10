@@ -10,9 +10,7 @@ from importData import *
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT_DIR = os.path.dirname(SCRIPT_DIR)
 
-daily_data_path = os.path.join(ROOT_DIR, 'data', 'WHO-COVID-19-global-daily-data.csv')
-df = pd.read_csv(daily_data_path)
-
+df = get_data("global_daily")
 # run webapp with streamlit run /Users/lysander/Documents/CovidProject/streamlitApp.py
     
 def sidebar_date_selector():
@@ -96,7 +94,7 @@ def death_rate_sidebar_button():
             st.error("No country or region selected.")
             return
 
-        st.line_chart(data=death_rate_df, x = 'Date_reported', y='death_rate', color=colouring, x_label='Date', y_label='Death Rate')
+        st.bar_chart(data=death_rate_df, x = colouring, y='death_rate', color=colouring, x_label=colouring, y_label='Death Rate')
 
         
 
