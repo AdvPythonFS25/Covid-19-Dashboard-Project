@@ -6,9 +6,10 @@ import pandas as pd
 # import 
 from importData import DataImporter
 from statistics.countryOrRegionWrapper import DateAndLocationFilter
-from statistics.rtStatistics import rt
-from statistics.deathRate import death_rate
+from statistics.rtStatistics import rt, ReproductiveNumber
+from statistics.deathRate import death_rate, DeathRate
 from statistics.averageDailyCases import AverageDailyCases
+from statistics.averageDailyDeaths import AverageDailyDeaths
 
 
 def main():
@@ -35,19 +36,26 @@ def main():
     start_date, end_date = sidebar_date_selector(df=daily_df)
     country_names, who_regions = sidebar_location_selector(df=daily_df)
 
-    rt_number_sidebar_button(df=daily_df, 
-                             country_names=country_names,
-                             who_regions=who_regions, 
-                             start_date=start_date, 
-                             end_date=end_date)
-
-    death_rate_sidebar_button(df=daily_df, 
-                              country_names=country_names,
+        
+    daily_cases_sidebar_button(df=daily_df, 
+                              countries=country_names,
                               who_regions=who_regions, 
                               start_date=start_date, 
                               end_date=end_date)
-        
-    daily_cases_sidebar_button(df=daily_df, 
+    
+    daily_deaths_sidebar_button(df=daily_df, 
+                              countries=country_names,
+                              who_regions=who_regions, 
+                              start_date=start_date, 
+                              end_date=end_date)
+    
+    rt_number_sidebar_button(df=daily_df, 
+                              countries=country_names,
+                              who_regions=who_regions, 
+                              start_date=start_date, 
+                              end_date=end_date)
+    
+    death_rate_sidebar_button(df=daily_df, 
                               countries=country_names,
                               who_regions=who_regions, 
                               start_date=start_date, 
@@ -94,49 +102,61 @@ def sidebar_location_selector(df):
 
     return selected_countries, selected_who_regions
 
-def rt_number_sidebar_button(df, country_names, who_regions, start_date, end_date):
-    if st.sidebar.checkbox("rt number"):
-        rt_value, rt_df = rt(df=df, 
-                                      country_names=country_names,
-                                      who_regions=who_regions,
-                                      start_date = start_date,
-                                      end_date=end_date)
-        
-        st.subheader("The Rt number over time") 
-        st.dataframe(rt_value)
 
-        if len(country_names) > 0:
-            colouring = 'Country'
-        elif len(who_regions) > 0:
-            colouring = 'WHO_region'
-        else:
-            st.error("No country or region selected.")
-            return
+def rt_number_sidebar_button(df, countries, who_regions, start_date, end_date):
+    if not st.sidebar.checkbox("rt_number"):
+        return # exit if check isnt checked
+    
+    # Filtered instance and get date time filtered df
+    filtered_obj = DateAndLocationFilter(
+        df=df, 
+        countries=countries, 
+        regions=who_regions, 
+        start_date=start_date, 
+        end_date=end_date)
+    
+    filtered_df = filtered_obj.get_filtered_df()
+    selected_column = filtered_obj.choose_country_or_who_region()
 
-        st.line_chart(data=rt_df, x = 'Date_reported', y='Rt', color=colouring, x_label='Date', y_label='Rt')
+    if not selected_column: # dont use 'is none'
+        return  # exit if no country or who region is selected
+    
+    daily_cases_obj = ReproductiveNumber(
+        filtered_df=filtered_df, 
+        region_or_country=selected_column
+        )
+    
+    # show what you want to show girl
+    st.subheader("Average Reproductive Number")
+    avg_df = daily_cases_obj.avg_rt_number()
+    st.dataframe(avg_df)
 
+def death_rate_sidebar_button(df, countries, who_regions, start_date, end_date):
+    if not st.sidebar.checkbox("Death Rate"):
+        return # exit if check isnt checked
+    
+    # Filtered instance and get date time filtered df
+    filtered_obj = DateAndLocationFilter(
+        df=df, 
+        countries=countries, 
+        regions=who_regions, 
+        start_date=start_date, 
+        end_date=end_date)
+    
+    filtered_df = filtered_obj.get_filtered_df()
+    selected_column = filtered_obj.choose_country_or_who_region()
 
-def death_rate_sidebar_button(df, country_names, who_regions, start_date, end_date):
-    if st.sidebar.checkbox("Death Rate"):
-
-        death_rate_value, death_rate_df = death_rate(df=df, 
-                                      country_names=country_names,
-                                      who_regions=who_regions,
-                                      start_date = start_date,
-                                      end_date=end_date)
-        
-        st.subheader("The Death Rate Over Time") 
-        st.dataframe(death_rate_value)
-
-        if len(country_names) > 0:
-            colouring = 'Country'
-        elif len(who_regions) > 0:
-            colouring = 'WHO_region'
-        else:
-            st.error("No country or region selected.")
-            return
-
-        st.line_chart(data=death_rate_df, x = 'Date_reported', y='death_rate', color=colouring, x_label='Date', y_label='Death Rate')
+    if not selected_column: # dont use 'is none'
+        return  # exit if no country or who region is selected
+    
+    death_rate_obj = DeathRate(
+        filtered_df=filtered_df, 
+        region_or_country=selected_column)
+    
+    # show what you want to show girl
+    st.subheader("Average Daily Cases")
+    avg_df = death_rate_obj.avg_death_rate()
+    st.dataframe(avg_df)
 
 def daily_cases_sidebar_button(df, countries, who_regions, start_date, end_date):
     if not st.sidebar.checkbox("Daily Cases"):
@@ -150,7 +170,7 @@ def daily_cases_sidebar_button(df, countries, who_regions, start_date, end_date)
         start_date=start_date, 
         end_date=end_date)
     
-    filtered_df = filtered_obj.date_location_filter()
+    filtered_df = filtered_obj.get_filtered_df()
     selected_column = filtered_obj.choose_country_or_who_region()
 
     if not selected_column: # dont use 'is none'
@@ -163,6 +183,33 @@ def daily_cases_sidebar_button(df, countries, who_regions, start_date, end_date)
     # show what you want to show girl
     st.subheader("Average Daily Cases")
     avg_df = daily_cases_obj.avg_daily_cases()
+    st.dataframe(avg_df)
+
+def daily_deaths_sidebar_button(df, countries, who_regions, start_date, end_date):
+    if not st.sidebar.checkbox("Daily Deaths"):
+        return # exit if check isnt checked
+    
+    # Filtered instance and get date time filtered df
+    filtered_obj = DateAndLocationFilter(
+        df=df, 
+        countries=countries, 
+        regions=who_regions, 
+        start_date=start_date, 
+        end_date=end_date)
+    
+    filtered_df = filtered_obj.get_filtered_df()
+    selected_column = filtered_obj.choose_country_or_who_region()
+
+    if not selected_column: # dont use 'is none'
+        return  # exit if no country or who region is selected
+    
+    daily_deaths_obj = AverageDailyDeaths(
+        filtered_df=filtered_df, 
+        region_or_country=selected_column)
+    
+    # show what you want to show girl
+    st.subheader("Average Daily Deaths")
+    avg_df = daily_deaths_obj.avg_daily_deaths()
     st.dataframe(avg_df)
 
 

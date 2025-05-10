@@ -1,6 +1,32 @@
 import pandas as pd
 from .countryOrRegionWrapper import country_or_region
 
+class DeathRate:
+    def __init__(self, filtered_df, region_or_country): # built for daily DF filtered by date and region
+        self.filtered_df = filtered_df.copy()
+        self.region_or_country = region_or_country
+
+    def _get_death_rate_df(self):
+        death_rate_df = self.filtered_df.copy()
+        death_rate_df.fillna(0, inplace=True)
+        death_rate_df = death_rate_df.sort_values('Date_reported')
+
+        death_rate_df['death_rate']= death_rate_df.apply(lambda row: 
+                                          ((row['Cumulative_deaths']/row['Cumulative_cases'])*100) 
+                                          if row['Cumulative_cases'] > 0 else 0, axis= 1)
+        return death_rate_df
+    
+    def avg_death_rate(self):
+        death_rate_df = self._get_death_rate_df()
+        averages = death_rate_df.groupby(self.region_or_country).agg(AverageDeathRate =('death_rate', 'mean')).reset_index()
+        return averages
+    
+    def death_rate_lineplot(self):
+        pass
+
+    def death_rate_histogram(self):
+        pass
+
 def death_rate_country(df, country_names, start_date, end_date):
     """Calculate death rate by region
 

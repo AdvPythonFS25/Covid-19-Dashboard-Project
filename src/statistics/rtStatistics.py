@@ -2,19 +2,33 @@ import pandas as pd
 import numpy as np
 from .countryOrRegionWrapper import country_or_region
 
+class ReproductiveNumber:
+    def __init__(self, filtered_df, region_or_country): # built for daily DF filtered by date and region
+        self.filtered_df = filtered_df.copy()
+        self.region_or_country = region_or_country
+
+    def _get_rt_df(self):
+        rt_df = self.filtered_df.copy()
+        rt_df['Rt'] = self.filtered_df.groupby(self.region_or_country)['New_cases'].transform(lambda x: x / x.shift(1))
+        rt_df['Rt'].replace([np.inf, -np.inf], np.nan, inplace=True) #replace inf values with NaN
+        rt_df['Rt'].fillna(0, inplace=True) #replace all NaN with 0
+        return rt_df
+    
+    def avg_rt_number(self): 
+        rt_df = self._get_rt_df()
+        averages = rt_df.groupby(self.region_or_country).agg(AverageRt=('Rt', 'mean')).reset_index()
+        return averages
+    
+    def rt_histogram(self):
+        pass # use  _get_rt_df to make a histogram or maybe seaborn violine plot?
+    
+    def rt_line_plot(self):
+        #    st.line_chart(data=rt_df, x = 'Date_reported', y='Rt', color=colouring, x_label='Date', y_label='Rt')
+        pass # use  _get_rt_df to make a lineplot
+
+
 
 def rt_country(df, country_names, start_date, end_date):
-    """Rt (reproductive time) calculation per country
-
-    Args:
-        df (Pandas dataframe)
-        country_names (List)
-        start_date (Datetime obj)
-        end_date (Datetime obj)
-
-    Returns:
-        Value, Dataframe:
-    """
 
     #df with countries the user selected
     df_countries = df[df['Country'].isin(country_names)].copy()

@@ -16,9 +16,9 @@ class AverageDailyCases:
             st.error("Invalid selection for country or region.")
             return None
         
-        avg_cases = self.filtered_df.groupby(self.region_or_country)["New_cases"].mean()
-        avg_cases = avg_cases.rename("Average Daily Cases")
-        return avg_cases.round(2)
+        summary_cases = self.filtered_df.groupby(self.region_or_country)["New_cases"].agg(['mean', 'median']).reset_index()
+        summary_cases.columns = [self.region_or_country, 'Mean', 'Median']
+        return summary_cases.round(2)
 
     def daily_cases_histogram(self): # locations are either regions or countries
 

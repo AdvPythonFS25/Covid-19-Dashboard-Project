@@ -15,10 +15,11 @@ class AverageDailyDeaths:
         if self.region_or_country not in ["Country", "WHO_region"]:
             st.error("Invalid selection for country or region.")
             return None
-        
-        avg_deaths = self.filtered_df.groupby(self.region_or_country)["New_deaths"].mean()
-        avg_deaths = avg_deaths.rename("Average Daily Deaths")
-        return avg_deaths.round(2)
+
+        summary_deaths = self.filtered_df.groupby(self.region_or_country)["New_deaths"].agg(['mean', 'median']).reset_index()
+        summary_deaths.columns = [self.region_or_country, 'Mean', 'Median']
+        return summary_deaths.round(2)
+    
 
     def daily_deaths_histogram(self): # locations are either regions or countries
 

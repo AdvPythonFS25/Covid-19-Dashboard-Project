@@ -38,7 +38,7 @@ class DateAndLocationFilter:
         else:
             st.error("No country or region selected.")
 
-    def date_location_filter(self):
+    def get_filtered_df(self):
 
         filtered_df = self.df[
             (self.df["Date_reported"] >= pd.to_datetime(self.start_date)) &
