@@ -52,7 +52,6 @@ def plot_distribution(df, value_column, group_column, title_prefix):
         return st.pyplot(fig)
     
 def plot_streamlit_time_series(df, region_or_country, date_col, value_col, y_label):
-
     if region_or_country == "Country":
         grouped_df = df.groupby([region_or_country, pd.Grouper(key=date_col, freq='W')])[value_col].mean().reset_index()
 
@@ -75,7 +74,18 @@ def plot_streamlit_time_series(df, region_or_country, date_col, value_col, y_lab
                              color=region_or_country,
                              x=date_col, 
                              y=value_col)
-
+def plot_streamlit_time_series_monthly(df, region_or_country, date_col, value_col, y_label):
+    if df is None or df.empty:
+        return
+    grouped_df = (df.groupby([region_or_country,pd.Grouper(key=date_col, freq='M')])[value_col].sum().reset_index())
+    st.text("Timeseries by " + ("Country" if region_or_country == "Country" else "WHO Region"))
+    return st.line_chart(
+        grouped_df,
+        y_label=y_label,
+        x_label='Date Reported',
+        color=region_or_country,
+        x=date_col,
+        y=value_col,)
 def hist_plot(df, value_column, title_prefix):
         fig, ax = plt.subplots(figsize=(12, 6))
         ax.hist(df[value_column], log=True)

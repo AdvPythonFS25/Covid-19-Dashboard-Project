@@ -32,15 +32,16 @@ class DataImporter:
         self.download_data()
         return pd.read_csv(self.filepath) 
     
-    def set_datetime(self, df):
+    def set_date_time(self, df):
         """Fixes the datetime columns in the dataframe."""
         # Convert 'Date_reported' column to datetime
         df['Date_reported'] = pd.to_datetime(df['Date_reported'], errors='coerce')
         return df
     
-    
-    
-
+    def fix_monthly_death(self, df):
+        df["Date_reported"] = pd.to_datetime(
+            dict(year=df["Year"], month=df["Month"], day=1))
+        return df
 
 URL = 'https://srhdpeuwpubsa.blob.core.windows.net/whdh/COVID/WHO-COVID-19-global-daily-data.csv'
 FILENAME = "WHO-COVID-19-global-daily-data.csv"

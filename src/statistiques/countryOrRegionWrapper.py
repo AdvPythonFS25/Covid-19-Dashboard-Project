@@ -38,6 +38,12 @@ class DateAndLocationFilter:
         else:
             st.error("No country or region selected.")
 
+    #Legacy code if needed can be used
+    def getClosestDate(self, selectedDate):
+        selectedDate = pd.to_datetime(selectedDate)
+        # goes trough every date possible and find the minimum difference and returns that date created the minimum date.
+        closest = min(self.df["Date_reported"], key=lambda x: abs(x - selectedDate))
+
     def get_filtered_df(self):
 
         filtered_df = self.df[

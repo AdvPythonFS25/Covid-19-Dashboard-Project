@@ -1,10 +1,13 @@
 import os
 import sys
+from zipfile import error
+
 import streamlit as st
 import pandas as pd
 
 # import 
 from importData import DataImporter
+from statistiques.deathByAgeIncome import AverageDeathsByAgeIncome
 from statistiques.averageHospitalizations import AverageHospitalizations
 from statistiques.countryOrRegionWrapper import DateAndLocationFilter
 from statistiques.rtStatistics import ReproductiveNumber
@@ -57,10 +60,15 @@ def main():
 
         importer_objects.append(importer)
         dataframes.append(df)
-    daily_df = importer_objects[0].set_datetime(dataframes[0])
+    daily_df = importer_objects[0].set_date_time(dataframes[0])
     global_df = dataframes[1]
-    hosp_df = importer_objects[2].set_datetime(dataframes[2])
-    monthly_death_df = dataframes[3]
+    hosp_df = importer_objects[2].set_date_time(dataframes[2])
+
+    #montly death df doesn not have date column it needs to be created manually and this is done in the
+    # deathbyage.py file
+
+    monthly_death_df = importer_objects[3].fix_monthly_death(dataframes[3])
+    monthly_death_df.rename(columns={"Who_region": "WHO_region"},inplace=True)
     vaccination_df = dataframes[4]
     meta_df = dataframes[5]
 
@@ -84,16 +92,17 @@ def main():
 
     # there is a case for unexpected arguments, thus used kwargs to handle them
     daily_statistics = [
-        (AverageDailyCases, {}),
-        (DeathRate, {}),
-        (AverageDailyDeaths, {}),
-        (ReproductiveNumber, {}),
-        (AverageHospitalizations, {"value_col": f"New_hospitalizations{suffix}"}),
-        (AverageHospitalizations, {"value_col": f"New_icu_admissions{suffix}"}),
+        (AverageDailyCases, {}, daily_df),
+        (DeathRate, {}, daily_df),
+        (AverageDailyDeaths, {}, daily_df),
+        (ReproductiveNumber, {}, daily_df),
+        (AverageHospitalizations, {"value_col": f"New_hospitalizations{suffix}"}, hosp_df),
+        (AverageHospitalizations, {"value_col": f"New_icu_admissions{suffix}"}, hosp_df),
     ]
-    for daily_stat, extra in daily_statistics:
+
+    for daily_stat, extra, source_df in daily_statistics:
         if extra is None :
-            daily_stats_checkbox(df=daily_df,
+            daily_stats_checkbox(df=source_df,
                                 stat_object=daily_stat,
                                 extra_kwargs=extra,
                                 countries=countries,
@@ -101,16 +110,54 @@ def main():
                                 start_date=start_date,
                                 end_date=end_date)
         else :
-            daily_stats_checkbox(df=hosp_df,
+            daily_stats_checkbox(df=source_df,
                                  stat_object=daily_stat,
                                  extra_kwargs=extra,
                                  countries=countries,
                                  who_regions=who_regions,
                                  start_date=start_date,
                                  end_date=end_date)
-    
-    
 
+    # Age and Income part had to do it separately, because of issues that couldn't be solvesd
+    if st.sidebar.checkbox("Deaths by Age and Income"):
+        # user pick age group and income group
+        ages = sorted(monthly_death_df["Agegroup"].astype(str).unique())
+        incomes = sorted(monthly_death_df["Wb_income"].astype(str).unique())
+        sel_ages = st.sidebar.multiselect(
+            "Age group", ages, default=ages, key="age_sel_deaths")
+        sel_inc = st.sidebar.multiselect(
+            "WB income level", incomes, default=incomes, key="inc_sel_deaths")
+
+        #filtering acording to chosen groups
+        df_ai = monthly_death_df[
+            monthly_death_df["Agegroup"].isin(sel_ages) &
+            monthly_death_df["Wb_income"].isin(sel_inc)
+            ]
+        if not countries and not who_regions:
+            st.info("Select at least one **Country** or **WHO Region** to display results.")
+            st.stop()
+        #Had to implement a daily static in here, because of the way the data is structured and the mechanism work
+        # If it works without problem, please feel welcome to remove it
+        filt_obj = DateAndLocationFilter(
+            df=df_ai,
+            countries=countries,
+            regions=who_regions,
+            start_date=start_date,
+            end_date=end_date,
+        )
+        df_ai_filt = filt_obj.get_filtered_df()
+        geo_col = filt_obj.choose_country_or_who_region()
+
+        # 4) build the metric and render it *without* its own checkbox
+        metric = AverageDeathsByAgeIncome(
+            filtered_df=df_ai_filt,
+            region_or_country=geo_col,
+        )
+        if df_ai_filt.empty:
+            st.warning("No data for the chosen Age/Income + Country/Region combination.")
+            st.stop()
+        if countries or who_regions is not None :
+            metric.summary_stat()
 # run webapp with streamlit run /Users/lysander/Documents/CovidProject/streamlitApp.py
     
 def sidebar_date_selector(df):
@@ -157,7 +204,6 @@ def sidebar_location_selector(df):
         selected_who_regions = []
 
     return selected_countries, selected_who_regions
-
 
 def rt_number_sidebar_button(df, countries, who_regions, start_date, end_date):
     if not st.sidebar.checkbox("rt_number"):
