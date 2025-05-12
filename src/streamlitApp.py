@@ -36,21 +36,19 @@ def main():
     st.set_page_config(page_title="COVID-19 Evolution Dashboard", layout="wide")
 
     start_date, end_date = sidebar_date_selector(df=daily_df)
-    country_names, who_regions = sidebar_location_selector(df=daily_df)
-    
-    
+    countries, who_regions = sidebar_location_selector(df=daily_df)
 
-    daily_deaths_checkbox(df=daily_df, countries=country_names, who_regions=who_regions, 
-                       start_date=start_date, end_date=end_date)
+    daily_statistics = [AverageDailyCases, DeathRate, AverageDailyDeaths, ReproductiveNumber]
     
-    daily_cases_checkbox(df=daily_df, countries=country_names, who_regions=who_regions, 
-                       start_date=start_date, end_date=end_date)
+    for daily_stat in daily_statistics:
+        
+        daily_stats_checkbox(df=daily_df, 
+                            stat_object=daily_stat, 
+                            countries=countries, 
+                            who_regions=who_regions, 
+                            start_date=start_date, 
+                            end_date=end_date)
     
-    rt_number_checkbox(df=daily_df, countries=country_names, who_regions=who_regions, 
-                       start_date=start_date, end_date=end_date)
-    
-    death_rate_checkbox(df=daily_df, countries=country_names, who_regions=who_regions, 
-                       start_date=start_date, end_date=end_date)
     
 
 # run webapp with streamlit run /Users/lysander/Documents/CovidProject/streamlitApp.py
@@ -135,35 +133,7 @@ def sidebar_location_selector(df):
 
     st.text('some graph over time : lineplot. fix bug when plotting by region to many things  ')
 
-def daily_deaths_checkbox(df, countries, who_regions, start_date, end_date):
-    filtered_obj = DateAndLocationFilter(
-        df=df, 
-        countries=countries, 
-        regions=who_regions, 
-        start_date=start_date, 
-        end_date=end_date)
-    
-    filtered_df = filtered_obj.get_filtered_df()
-    selected_column = filtered_obj.choose_country_or_who_region()
-
-    daily_deaths_obj =AverageDailyDeaths(filtered_df=filtered_df, region_or_country=selected_column)
-    daily_deaths_obj.get_checkbox()
-
-def rt_number_checkbox(df, countries, who_regions, start_date, end_date):
-    filtered_obj = DateAndLocationFilter(
-        df=df, 
-        countries=countries, 
-        regions=who_regions, 
-        start_date=start_date, 
-        end_date=end_date)
-    
-    filtered_df = filtered_obj.get_filtered_df()
-    selected_column = filtered_obj.choose_country_or_who_region()
-
-    rt_obj = ReproductiveNumber(filtered_df=filtered_df, region_or_country=selected_column)
-    rt_obj.get_checkbox()
-
-def death_rate_checkbox(df, countries, who_regions, start_date, end_date):
+def daily_stats_checkbox(df, stat_object, countries, who_regions, start_date, end_date):
         filtered_obj = DateAndLocationFilter(
             df=df, 
             countries=countries, regions=who_regions, 
@@ -172,21 +142,8 @@ def death_rate_checkbox(df, countries, who_regions, start_date, end_date):
         filtered_df = filtered_obj.get_filtered_df()
         selected_column = filtered_obj.choose_country_or_who_region()
 
-        rt_obj = DeathRate(filtered_df=filtered_df, region_or_country=selected_column)
-        rt_obj.get_checkbox()
-
-def daily_cases_checkbox(df, countries, who_regions, start_date, end_date):
-        filtered_obj = DateAndLocationFilter(
-            df=df, 
-            countries=countries, regions=who_regions, 
-            start_date=start_date, end_date=end_date)
-        
-        filtered_df = filtered_obj.get_filtered_df()
-        selected_column = filtered_obj.choose_country_or_who_region()
-
-        rt_obj = AverageDailyCases(filtered_df=filtered_df, region_or_country=selected_column)
-        rt_obj.get_checkbox()
-
+        stat_obj = stat_object(filtered_df=filtered_df, region_or_country=selected_column)
+        stat_obj.get_checkbox()
 
 
 
