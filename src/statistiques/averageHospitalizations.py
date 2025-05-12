@@ -22,7 +22,7 @@ class AverageHospitalizations:
         self.region_or_country = region_or_country
 
     #if not said the choice considered to be New_hospitalizations_last_7days
-    def avg_hosp_icu_weekly_montly(self, choice = "New_hospitalizations_last_7days"):
+    def avg_hosp_icu_weekly_montly(self):
         self.filtered_df.fillna(0, inplace=True)
         # if no values are selected for country and region
         if self.region_or_country not in ["Country", "WHO_region"]:
@@ -30,7 +30,7 @@ class AverageHospitalizations:
             return None
         #Column name could be New_hospitalizations_last_7days, New_hospitalizations_last_28days, New_icu_admissions_last_7days, New_icu_admissions_last_28days
         #ICU admissions are for the severe cases
-        summary_hospitalizations_icu = self.filtered_df.groupby(self.region_or_country)[choice].agg(['mean','median','min','max', 'count','std']).reset_index()
+        summary_hospitalizations_icu = self.filtered_df.groupby(self.region_or_country)[self.value_col].agg(['mean','median','min','max', 'count','std']).reset_index()
         summary_hospitalizations_icu.columns = [self.region_or_country, 'Mean', 'Median','Min', 'Max', 'Count','Std']
 
         # Round the results to 2 decimal places
