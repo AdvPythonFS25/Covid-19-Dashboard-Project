@@ -19,6 +19,7 @@ def plot_distribution(df, value_column, group_column, title_prefix):
                     x=group_column, y=value_column, 
                     hue=group_column, 
                     ax=ax[0],
+                    # log_scale=True,
                     palette=sns.color_palette("coolwarm", n_colors=8)) 
         
         ax[0].set_title(f"{title_prefix} Boxplot", fontsize=30)
