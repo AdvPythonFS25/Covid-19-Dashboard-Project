@@ -23,7 +23,7 @@ pip install streamlit
 - streamlit
 - pandas
 - numpy
-- seabord
+- seaborn
 
 ## Features 
 📊 **Basic statistics and visualisations**  
