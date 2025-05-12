@@ -28,8 +28,9 @@ def layout2(title, table, distribution_plots, timeseries_plot):
     
     timeseries_plot()
 
-def summary_stat_checkbox(title, selected_column, summary_stat):
-    if not st.sidebar.checkbox(title):
+def summary_stat_checkbox(title, selected_column, summary_stat, key = None):
+
+    if not st.sidebar.checkbox(title, key = key or title):
         return  # exit if the button is not clicked
     if not selected_column:  # dont use 'is none'
         return  # exit if no country or who region is selected

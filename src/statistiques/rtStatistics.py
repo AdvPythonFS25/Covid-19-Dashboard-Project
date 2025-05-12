@@ -55,4 +55,3 @@ class ReproductiveNumber:
                                      summary_stat=self._summary_stat)
     
 
-

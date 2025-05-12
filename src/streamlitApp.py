@@ -5,6 +5,7 @@ import pandas as pd
 
 # import 
 from importData import DataImporter
+from statistiques.averageHospitalizations import AverageHospitalizations
 from statistiques.countryOrRegionWrapper import DateAndLocationFilter
 from statistiques.rtStatistics import ReproductiveNumber
 from statistiques.deathRate import DeathRate
@@ -20,34 +21,93 @@ def main():
     DATA_DIR = os.path.join(ROOT_DIR, 'data')
 
     # Constant urls and Filenames
-    URL = 'https://srhdpeuwpubsa.blob.core.windows.net/whdh/COVID/WHO-COVID-19-global-daily-data.csv'
+    URL_global_daily = 'https://raw.githubusercontent.com/omerkaraca-fire/data/main/WHO-COVID-19-global-daily-data.csv'
+    URL_global_data  = 'https://raw.githubusercontent.com/omerkaraca-fire/data/main/WHO-COVID-19-global-data.csv'
+    URL_global_hosp = 'https://raw.githubusercontent.com/omerkaraca-fire/data/main/WHO-COVID-19-global-hosp-icu-data.csv'
+    URL_global_monthly_death = 'https://raw.githubusercontent.com/omerkaraca-fire/data/main/WHO-COVID-19-global-monthly-death-by-age-data.csv'
+    URL_global_vaccination = "https://raw.githubusercontent.com/omerkaraca-fire/data/main/vaccination-data.csv"
+    URL_global_meta = "https://raw.githubusercontent.com/omerkaraca-fire/data/main/vaccination-metadata.csv"
+
     GLOBAL_DAILY_DATA_FILE = "WHO-COVID-19-global-daily-data.csv"
+    GLOBAL_DATA_FILE = "WHO-COVID-19-global-data.csv"
+    GLOBAL_HOSP_DATA_FILE = "WHO-COVID-19-global-hosp-icu-data.csv"
+    GLOBAL_MONTHLY_DEATH_DATA_FILE = "WHO-COVID-19-global-monthly-death-by-age-data.csv"
+    GLOBAL_VACCINATION_DATA_FILE = "vaccination-data.csv"
+    GLOBAL_META_DATA_FILE ="vaccination-metadata.csv"
+
+    DATA_FILE_ARR = [GLOBAL_DAILY_DATA_FILE,
+                     GLOBAL_DATA_FILE,
+                     GLOBAL_HOSP_DATA_FILE,
+                     GLOBAL_MONTHLY_DEATH_DATA_FILE,
+                     GLOBAL_VACCINATION_DATA_FILE,
+                     GLOBAL_META_DATA_FILE]
+    URL_ARR = [URL_global_daily,
+                URL_global_data,
+                URL_global_hosp,
+                URL_global_monthly_death,
+                URL_global_vaccination,
+                URL_global_meta]
+
+    importer_objects = []
+    dataframes = []
+
+    for url, filename in zip(URL_ARR, DATA_FILE_ARR):
+        importer = DataImporter(url=url, filename=filename, data_dir=DATA_DIR)
+        df = importer.load_data()
+
+        importer_objects.append(importer)
+        dataframes.append(df)
+    daily_df = importer_objects[0].set_datetime(dataframes[0])
+    global_df = dataframes[1]
+    hosp_df = importer_objects[2].set_datetime(dataframes[2])
+    monthly_death_df = dataframes[3]
+    vaccination_df = dataframes[4]
+    meta_df = dataframes[5]
 
 
-    # create Dataimporter instance and load data
-    global_daily_data_object = DataImporter(url=URL, filename=GLOBAL_DAILY_DATA_FILE, data_dir=DATA_DIR)
-    daily_df = global_daily_data_object.load_data()
-
-    # maybe change this to a seperate processing class (not sure yet)
-    daily_df = global_daily_data_object.set_datetime(daily_df) 
-    
 
     # Set page config
     st.set_page_config(page_title="COVID-19 Evolution Dashboard", layout="wide")
 
     start_date, end_date = sidebar_date_selector(df=daily_df)
     countries, who_regions = sidebar_location_selector(df=daily_df)
+    #--------------
+    dayWeekMonthChoice = sidebar_daily_weekly_monthly_selector()
+    SUFFIX_MAP = {
+        "Daily": "_last_7days",
+        "Weekly": "_last_7days",
+        "Monthly": "_last_28days",  # same column, but you’ll resample in plot
+    }
+    suffix = SUFFIX_MAP[dayWeekMonthChoice]
+    #--------------
 
-    daily_statistics = [AverageDailyCases, DeathRate, AverageDailyDeaths, ReproductiveNumber]
-    
-    for daily_stat in daily_statistics:
-        
-        daily_stats_checkbox(df=daily_df, 
-                            stat_object=daily_stat, 
-                            countries=countries, 
-                            who_regions=who_regions, 
-                            start_date=start_date, 
-                            end_date=end_date)
+
+    # there is a case for unexpected arguments, thus used kwargs to handle them
+    daily_statistics = [
+        (AverageDailyCases, {}),
+        (DeathRate, {}),
+        (AverageDailyDeaths, {}),
+        (ReproductiveNumber, {}),
+        (AverageHospitalizations, {"value_col": f"New_hospitalizations{suffix}"}),
+        (AverageHospitalizations, {"value_col": f"New_icu_admissions{suffix}"}),
+    ]
+    for daily_stat, extra in daily_statistics:
+        if extra is None :
+            daily_stats_checkbox(df=daily_df,
+                                stat_object=daily_stat,
+                                extra_kwargs=extra,
+                                countries=countries,
+                                who_regions=who_regions,
+                                start_date=start_date,
+                                end_date=end_date)
+        else :
+            daily_stats_checkbox(df=hosp_df,
+                                 stat_object=daily_stat,
+                                 extra_kwargs=extra,
+                                 countries=countries,
+                                 who_regions=who_regions,
+                                 start_date=start_date,
+                                 end_date=end_date)
     
     
 
@@ -65,6 +125,13 @@ def sidebar_date_selector(df):
     end_date = pd.to_datetime(end_date)
 
     return start_date, end_date
+
+
+def sidebar_daily_weekly_monthly_selector():
+    return st.sidebar.radio(
+        "Granularity", ["Daily", "Weekly", "Monthly"],
+        index=0
+    )
 
 def sidebar_location_selector(df):
     st.sidebar.subheader("Select Country or  WHO Region")
@@ -92,7 +159,7 @@ def sidebar_location_selector(df):
     return selected_countries, selected_who_regions
 
 
-#def rt_number_sidebar_button(df, countries, who_regions, start_date, end_date):
+def rt_number_sidebar_button(df, countries, who_regions, start_date, end_date):
     if not st.sidebar.checkbox("rt_number"):
         return # exit if check isnt checked
     
@@ -133,7 +200,8 @@ def sidebar_location_selector(df):
 
     st.text('some graph over time : lineplot. fix bug when plotting by region to many things  ')
 
-def daily_stats_checkbox(df, stat_object, countries, who_regions, start_date, end_date):
+def daily_stats_checkbox(df, stat_object, countries, who_regions, start_date, end_date, extra_kwargs=None):
+        extra_kwargs = extra_kwargs or {}
         filtered_obj = DateAndLocationFilter(
             df=df, 
             countries=countries, regions=who_regions, 
@@ -142,7 +210,7 @@ def daily_stats_checkbox(df, stat_object, countries, who_regions, start_date, en
         filtered_df = filtered_obj.get_filtered_df()
         selected_column = filtered_obj.choose_country_or_who_region()
 
-        stat_obj = stat_object(filtered_df=filtered_df, region_or_country=selected_column)
+        stat_obj = stat_object(filtered_df=filtered_df, region_or_country=selected_column, **extra_kwargs)
         stat_obj.get_checkbox()
 
 
