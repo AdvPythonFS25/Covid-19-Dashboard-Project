@@ -28,29 +28,30 @@ class DateAndLocationFilter:
 
     def choose_country_or_who_region(self):
         """ Chooses country or region columns depending on user input """
-
-        if len(self.countries) > 0:
+        if self.countries:
+            # • ISO-3 codes are 3 upper-case letters (e.g. "USA")
+            if all(len(c) == 3 and c.isupper() for c in self.countries):
+                return "Country_code"
             return "Country"
-        
-        elif len(self.regions) > 0:
+        if self.regions:
             return "WHO_region"
-        
-        else:
-            st.error("No country or region selected.")
+        st.error("No country or region selected.")
+        return None
 
-    def get_filtered_df(self):
+    def get_filtered_df(self) -> pd.DataFrame:
+        df = self.df.copy()
+        df["Date_reported"] = pd.to_datetime(df["Date_reported"])
 
-        filtered_df = self.df[
-            (self.df["Date_reported"] >= pd.to_datetime(self.start_date)) &
-            (self.df["Date_reported"] <= pd.to_datetime(self.end_date))
-        ]
+        # date slice first
+        df = df.query("@self.start_date <= Date_reported <= @self.end_date")
 
-        if len(self.countries) > 0:
-            filtered_df = filtered_df[filtered_df['Country'].isin(self.countries)]
-        elif len(self.regions) > 0:
-            filtered_df = filtered_df[filtered_df['WHO_region'].isin(self.regions)]
+        if self.countries:
+            key = self.choose_country_or_who_region()
+            df = df[df[key].isin(self.countries)]
+        elif self.regions:
+            df = df[df["WHO_region"].isin(self.regions)]
 
-        return filtered_df
+        return df
     
 
 

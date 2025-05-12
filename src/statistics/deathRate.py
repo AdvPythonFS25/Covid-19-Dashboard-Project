@@ -1,4 +1,5 @@
 import pandas as pd
+import streamlit as st
 from .countryOrRegionWrapper import country_or_region
 
 class DeathRate:
@@ -22,10 +23,34 @@ class DeathRate:
         return averages
     
     def death_rate_lineplot(self):
-        pass
+        death_rate_df = self._get_death_rate_df()
+        st.line_chart(data=death_rate_df, x = 'Date_reported', y = 'death_rate',)
+        return
 
     def death_rate_histogram(self):
-        pass
+        death_rate_df = self._get_death_rate_df()
+        avg_df = death_rate_df.groupby(self.region_or_country)['death_rate'].mean().reset_index()
+        st.bar_chart(
+            data=avg_df,
+            x=self.region_or_country,
+            y='death_rate'
+        )
+    def death_rate_boxplot(self):
+        death_rate_df = self._get_death_rate_df()
+        avg_df = death_rate_df.groupby(self.region_or_country)['death_rate'].mean().reset_index()
+        st.bar_chart(
+            data=avg_df,
+            x=self.region_or_country,
+            y='death_rate'
+        )
+    def death_rate_barplot(self):
+        death_rate_df = self._get_death_rate_df()
+        avg_df = death_rate_df.groupby(self.region_or_country)['death_rate'].mean().reset_index()
+        st.bar_chart(
+            data=avg_df,
+            x=self.region_or_country,
+            y='death_rate'
+        )
 
 def death_rate_country(df, country_names, start_date, end_date):
     """Calculate death rate by region

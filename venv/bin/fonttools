@@ -1,4 +1,6 @@
-#!/Users/lysander/Documents/currentCovidProject/Covid-19-Dashboard-Project/venv/bin/python3.12
+#!/bin/sh
+'''exec' "/Users/nihatomerkaraca/Desktop/Programming for data science/lysanderpatch/venv/bin/python3.13" "$0" "$@"
+' '''
 # -*- coding: utf-8 -*-
 import re
 import sys
