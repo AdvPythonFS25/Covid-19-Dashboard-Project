@@ -8,10 +8,10 @@ This project aims to create a reporting tool for the Covid-19 outbreak that allo
 
 ## 🛠️ Installation Guide 
 
+## 2 WAYS
 
 To run the dashboard, download the file and run in terminal: (1st way) 
 
-Requirement : DOCKER Installed, no other things are necessary, streamlit, python etc. docker image does the job for you :)
 ```bash
 cd Covid-19-Dashboard-Project 
 ```
@@ -33,6 +33,8 @@ streamlit run /src/streamlitApp.py
 ```
 
 To run the dashboard, download the file and run in terminal: (2nd way UNDER DEVELOPMENT MAY NOT WORK):
+
+Requirement : DOCKER Installed, no other things are necessary, streamlit, python etc. docker image does the job for you :)
 
 ```bash
 mkdir foldernewlycreated
