@@ -6,9 +6,13 @@ An interactive dashboard providing insights to the global COVID-19 pandemic, dev
 
 This project aims to create a reporting tool for the Covid-19 outbreak that allows users to explore cases and deaths across countries/regions at specific time spans using data from the [WHO’s Global Health Observatory](https://www.who.int/data/gho).
 ## 🛠️ Installation Guide - WINDOWS Commands
-
 ```bash
-cd Covid-19-Dashboard-Project 
+mkdir foldernewlycreated
+cd foldernewlycreated
+```
+```bash
+git clone --branch lysanders-branch https://github.com/AdvPythonFS25/Covid-19-Dashboard-Project.git
+cd Covid-19-Dashboard-Project
 ```
 If the GitHub repository already has a venv folder, delete it:
 ```bash
@@ -53,7 +57,12 @@ docker run -p 8501:8501 covid-dashboard-lani
 To run the dashboard, download the file and run in terminal: (1st way) 
 
 ```bash
-cd Covid-19-Dashboard-Project 
+mkdir foldernewlycreated
+cd foldernewlycreated
+```
+```bash
+git clone --branch lysanders-branch https://github.com/AdvPythonFS25/Covid-19-Dashboard-Project.git
+cd Covid-19-Dashboard-Project
 ```
 If the Github repository already has the venv we need to delete it.
 ```bash
