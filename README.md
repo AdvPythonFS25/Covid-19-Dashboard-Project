@@ -5,8 +5,48 @@ An interactive dashboard providing insights to the global COVID-19 pandemic, dev
 ## 🌍 Project Overview 
 
 This project aims to create a reporting tool for the Covid-19 outbreak that allows users to explore cases and deaths across countries/regions at specific time spans using data from the [WHO’s Global Health Observatory](https://www.who.int/data/gho).
+## 🛠️ Installation Guide - WINDOWS Commands
 
-## 🛠️ Installation Guide 
+```bash
+cd Covid-19-Dashboard-Project 
+```
+If the GitHub repository already has a venv folder, delete it:
+```bash
+rmdir /s /q venv
+```
+```bash
+python -m venv venv
+```
+```bash
+venv\Scripts\activate
+```
+```bash
+pip install streamlit pandas numpy matplotlib seaborn requests
+```
+```bash
+streamlit run src/streamlitApp.py
+```
+To run the dashboard, download the file and run in terminal: (2nd way UNDER DEVELOPMENT MAY NOT WORK):
+
+Requirement : DOCKER Installed, no other things are necessary, streamlit, python etc. docker image does the job for you :)
+
+```bash
+mkdir foldernewlycreated
+cd foldernewlycreated
+```
+```bash
+git clone --branch lysanders-branch https://github.com/AdvPythonFS25/Covid-19-Dashboard-Project.git
+cd Covid-19-Dashboard-Project
+```
+
+```bash
+cd Covid-19-Dashboard-Project
+```
+
+```bash
+docker run -p 8501:8501 covid-dashboard-lani
+```
+## 🛠️ Installation Guide - MAC Commands
 
 ## 2 WAYS
 
@@ -14,6 +54,10 @@ To run the dashboard, download the file and run in terminal: (1st way)
 
 ```bash
 cd Covid-19-Dashboard-Project 
+```
+If the Github repository already has the venv we need to delete it.
+```bash
+rm -rf venv
 ```
 
 ```bash
