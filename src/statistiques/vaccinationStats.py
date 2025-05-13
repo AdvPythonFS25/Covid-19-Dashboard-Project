@@ -9,8 +9,7 @@ from .plots import plot_distribution, plot_streamlit_time_series_weekly, plot_st
 
 
 class VaccinationStats:
-
-    def __init__(self, filtered_df, region_or_country, name_given,value_col= "TOTAL_VACCINATIONS"):  # built for daily DF filtered by date and region
+    def __init__(self, filtered_df, region_or_country, name_given,value_col= "TOTAL_VACCINATIONS"):
         self.filtered_df = filtered_df.copy()
         # Convert the 'Date_reported' column to datetime format
         self.region_or_country = region_or_country
@@ -19,7 +18,6 @@ class VaccinationStats:
 
     #if not said the choice considered to be Agegroup
     def _summary_table(self):
-
         self.filtered_df.fillna(0, inplace=True)
         # if no values are selected for country and region
         if self.region_or_country not in ["Country", "WHO_region"]:

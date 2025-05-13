@@ -73,7 +73,9 @@ def main():
 
     vaccination_df = dataframes[4]
     vaccination_df.rename(columns={"DATE_UPDATED": "Date_reported", "COUNTRY": "Country", "WHO_REGION" : "WHO_region"},inplace=True)
+
     vaccination_df = importer_objects[4].set_date_time(dataframes[4])
+    vaccination_df["WHO_region"] = vaccination_df["WHO_region"].str.replace(r"O$", "", regex=True)
     meta_df = dataframes[5]
 
 
@@ -128,7 +130,7 @@ def main():
     ]
 
     for daily_stat, extra, source_df in daily_statistics:
-            daily_stats_checkbox(df=source_df,
+            daily_stats_checkbox(df=source_df.copy(),
                                  stat_object=daily_stat,
                                  extra_kwargs=extra,
                                  countries=countries,
@@ -267,10 +269,9 @@ def rt_number_sidebar_button(df, countries, who_regions, start_date, end_date):
 def daily_stats_checkbox(df, stat_object, countries, who_regions, start_date, end_date, extra_kwargs=None):
         extra_kwargs = extra_kwargs or {}
         filtered_obj = DateAndLocationFilter(
-            df=df, 
+            df=df.copy(),
             countries=countries, regions=who_regions, 
             start_date=start_date, end_date=end_date)
-        
         filtered_df = filtered_obj.get_filtered_df()
         selected_column = filtered_obj.choose_country_or_who_region()
 
