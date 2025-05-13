@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import streamlit as st
 from .countryOrRegionWrapper import country_or_region
 from .layout import layout, summary_stat_checkbox
-from .plots import plot_distribution, plot_streamlit_time_series, hist_plot
+from .plots import plot_distribution, plot_streamlit_time_series_weekly, hist_plot
 
 
 class ReproductiveNumber:
@@ -36,7 +36,7 @@ class ReproductiveNumber:
      
     def time_series(self):
         rt_df = rt_df = self._get_rt_df()
-        return plot_streamlit_time_series(
+        return plot_streamlit_time_series_weekly(
             df=rt_df,
             region_or_country=self.region_or_country,
             date_col='Date_reported',

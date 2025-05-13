@@ -4,7 +4,7 @@ import streamlit as st
 import matplotlib.pyplot as plt
 import seaborn as sns
 from .layout import layout, summary_stat_checkbox
-from .plots import plot_distribution, plot_streamlit_time_series, plot_streamlit_time_series_monthly
+from .plots import plot_distribution, plot_streamlit_time_series_weekly, plot_streamlit_time_series_monthly
 
 
 def get_mode(series):

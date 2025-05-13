@@ -4,7 +4,7 @@ import streamlit as st
 import matplotlib.pyplot as plt
 import seaborn as sns
 from .layout import layout, summary_stat_checkbox
-from .plots import plot_distribution, plot_streamlit_time_series
+from .plots import plot_distribution, plot_streamlit_time_series_weekly
 
 
 def get_mode(series):
@@ -44,7 +44,7 @@ class AverageHospitalizations:
             title_prefix='Hospitalizations or ICU admissions distribution plots',)
 
     def time_series(self):
-        return plot_streamlit_time_series(
+        return plot_streamlit_time_series_weekly(
             df=self.filtered_df,
             region_or_country=self.region_or_country,
             date_col='Date_reported',

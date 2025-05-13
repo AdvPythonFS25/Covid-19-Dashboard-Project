@@ -7,6 +7,7 @@ import pandas as pd
 
 # import 
 from importData import DataImporter
+from statistiques.vaccinationStats import VaccinationStats
 from statistiques.deathByAgeIncome import AverageDeathsByAgeIncome
 from statistiques.averageHospitalizations import AverageHospitalizations
 from statistiques.countryOrRegionWrapper import DateAndLocationFilter
@@ -69,7 +70,10 @@ def main():
 
     monthly_death_df = importer_objects[3].fix_monthly_death(dataframes[3])
     monthly_death_df.rename(columns={"Who_region": "WHO_region"},inplace=True)
+
     vaccination_df = dataframes[4]
+    vaccination_df.rename(columns={"DATE_UPDATED": "Date_reported", "COUNTRY": "Country", "WHO_REGION" : "WHO_region"},inplace=True)
+    vaccination_df = importer_objects[4].set_date_time(dataframes[4])
     meta_df = dataframes[5]
 
 
@@ -98,18 +102,26 @@ def main():
         (ReproductiveNumber, {}, daily_df),
         (AverageHospitalizations, {"value_col": f"New_hospitalizations{suffix}"}, hosp_df),
         (AverageHospitalizations, {"value_col": f"New_icu_admissions{suffix}"}, hosp_df),
+         (VaccinationStats,
+          {"value_col": "TOTAL_VACCINATIONS",
+           "name_given": "Total Doses",
+           "label": "Total Doses"},
+          vaccination_df),
+
+         (VaccinationStats,
+          {"value_col": "PERSONS_VACCINATED_1PLUS_DOSE_PER100",
+           "name_given": "% Population ≥ 1 Dose",
+           "label": "% ≥ 1 Dose"},
+          vaccination_df),
+
+         (VaccinationStats,
+          {"value_col": "PERSONS_BOOSTER_ADD_DOSE_PER100",
+           "name_given": "Booster Coverage (%)",
+           "label": "Booster Coverage %"},
+          vaccination_df),
     ]
 
     for daily_stat, extra, source_df in daily_statistics:
-        if extra is None :
-            daily_stats_checkbox(df=source_df,
-                                stat_object=daily_stat,
-                                extra_kwargs=extra,
-                                countries=countries,
-                                who_regions=who_regions,
-                                start_date=start_date,
-                                end_date=end_date)
-        else :
             daily_stats_checkbox(df=source_df,
                                  stat_object=daily_stat,
                                  extra_kwargs=extra,
@@ -256,8 +268,17 @@ def daily_stats_checkbox(df, stat_object, countries, who_regions, start_date, en
         filtered_df = filtered_obj.get_filtered_df()
         selected_column = filtered_obj.choose_country_or_who_region()
 
-        stat_obj = stat_object(filtered_df=filtered_df, region_or_country=selected_column, **extra_kwargs)
-        stat_obj.get_checkbox()
+        stat_obj = stat_object(
+            filtered_df=filtered_df,
+            region_or_country=selected_column,
+            **{k: v for k, v in extra_kwargs.items() if k != "label"}
+        )
+
+        label = extra_kwargs.get("label")
+        if label is not None:
+            stat_obj.get_checkbox(label=label)
+        else:
+            stat_obj.get_checkbox()
 
 
 

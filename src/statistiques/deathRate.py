@@ -1,7 +1,7 @@
 import pandas as pd
 from .countryOrRegionWrapper import country_or_region
 import streamlit as st
-from .plots import plot_distribution, plot_streamlit_time_series
+from .plots import plot_distribution, plot_streamlit_time_series_weekly
 from .layout import layout, summary_stat_checkbox
 
 class DeathRate:
@@ -34,7 +34,7 @@ class DeathRate:
         
     def time_series(self):
         death_rate_df = self._get_death_rate_df()
-        return plot_streamlit_time_series(
+        return plot_streamlit_time_series_weekly(
             df=death_rate_df,
             region_or_country=self.region_or_country,
             date_col='Date_reported',

@@ -13,6 +13,15 @@ def layout(title, table, distribution_plots, timeseries_plot):
         distribution_plots()
         
     timeseries_plot()
+def layout_without_distribution(title, table, timeseries_plot):
+        # Layout
+    st.subheader(title)
+
+    col1, col2 = st.columns(2)
+
+
+    st.dataframe(table)
+    timeseries_plot()
 
 def layout2(title, table, distribution_plots, timeseries_plot):
         # Layout

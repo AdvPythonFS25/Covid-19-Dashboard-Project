@@ -51,7 +51,7 @@ def plot_distribution(df, value_column, group_column, title_prefix):
 
         return st.pyplot(fig)
     
-def plot_streamlit_time_series(df, region_or_country, date_col, value_col, y_label):
+def plot_streamlit_time_series_weekly(df, region_or_country, date_col, value_col, y_label):
     if region_or_country == "Country":
         grouped_df = df.groupby([region_or_country, pd.Grouper(key=date_col, freq='W')])[value_col].mean().reset_index()
 
@@ -86,6 +86,18 @@ def plot_streamlit_time_series_monthly(df, region_or_country, date_col, value_co
         color=region_or_country,
         x=date_col,
         y=value_col,)
+def plot_streamlit_barchart(df,region_or_country, value_col, y_label):
+    if df is None or df.empty:
+        return
+    grouped_df = (df.groupby([region_or_country])[value_col].sum().reset_index())
+    st.text("Barchart by " + ("Country" if region_or_country == "Country" else "WHO Region"))
+    return st.bar_chart(
+        grouped_df,
+        y_label=y_label,
+        x_label="Country/Region",
+        x=region_or_country,
+        y=value_col,)
+
 def hist_plot(df, value_column, title_prefix):
         fig, ax = plt.subplots(figsize=(12, 6))
         ax.hist(df[value_column], log=True)
@@ -96,3 +108,12 @@ def hist_plot(df, value_column, title_prefix):
         ax.set_yticklabels(ax.get_yticklabels(), fontsize=20)
 
         return st.pyplot(fig)
+
+#One line table showing the chosen column
+def basic_table(df, geo_col, value_col, title):
+    tbl = (df[[geo_col, value_col]]
+           .sort_values(value_col, ascending=False)
+           .reset_index(drop=True)
+           .rename(columns={geo_col: geo_col.title(),
+                            value_col: title}))
+    st.dataframe(tbl)

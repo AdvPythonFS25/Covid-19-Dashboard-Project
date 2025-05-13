@@ -3,7 +3,7 @@ import numpy as np
 import streamlit as st
 import matplotlib.pyplot as plt
 from .layout import layout, summary_stat_checkbox
-from . plots import plot_distribution, plot_streamlit_time_series
+from . plots import plot_distribution, plot_streamlit_time_series_weekly
 
 class AverageDailyCases:
 
@@ -30,7 +30,7 @@ class AverageDailyCases:
             title_prefix='Daily New Cases')
         
     def time_series(self):
-        return plot_streamlit_time_series(
+        return plot_streamlit_time_series_weekly(
             df=self.filtered_df,
             region_or_country=self.region_or_country,
             date_col='Date_reported',

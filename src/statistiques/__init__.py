@@ -2,7 +2,7 @@ from .rtStatistics import ReproductiveNumber
 from .deathRate import DeathRate
 from .countryOrRegionWrapper import country_or_region
 from .layout import layout, summary_stat_checkbox
-from .plots import plot_distribution, plot_streamlit_time_series
+from .plots import plot_distribution, plot_streamlit_time_series_weekly
 
 __all__ = ['ReproductiveNumber',
            'country_or_region', 
@@ -13,4 +13,4 @@ __all__ = ['ReproductiveNumber',
            'layout',
            'summary_stat_checkbox',
            'plot_distribution',
-           'plot_streamlit_time_series']
+           'plot_streamlit_time_series_weekly']
