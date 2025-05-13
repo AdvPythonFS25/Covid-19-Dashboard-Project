@@ -9,13 +9,25 @@ This project aims to create a reporting tool for the Covid-19 outbreak that allo
 ## 🛠️ Installation Guide 
 
 To run the dashboard, download the file and run in terminal: 
+
 ```bash
-streamlit run /PATH_TO/streamlitApp.py
+cd Covid-19-Dashboard-Project 
 ```
 
-If you do not have streamlit already install via: 
-```python
-pip install streamlit
+```bash
+python3 -m venv venv
+```
+
+```bash
+source venv/bin/activate
+```
+
+```bash
+pip install streamlit pandas numpy matplotlib seaborn requests
+```
+
+```bash
+streamlit run /src/streamlitApp.py
 ```
 
 **Dependencies/packages used**
