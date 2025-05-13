@@ -84,13 +84,13 @@ def main():
     start_date, end_date = sidebar_date_selector(df=daily_df)
     countries, who_regions = sidebar_location_selector(df=daily_df)
     #--------------
-    dayWeekMonthChoice = sidebar_daily_weekly_monthly_selector()
-    SUFFIX_MAP = {
-        "Daily": "_last_7days",
-        "Weekly": "_last_7days",
-        "Monthly": "_last_28days",  # same column, but you’ll resample in plot
-    }
-    suffix = SUFFIX_MAP[dayWeekMonthChoice]
+    #dayWeekMonthChoice = sidebar_daily_weekly_monthly_selector()
+    #SUFFIX_MAP = {
+    #    "Daily": "_last_7days",
+    #    "Weekly": "_last_7days",
+    #    "Monthly": "_last_28days",  # same column, but you’ll resample in plot
+    #}
+    #suffix = SUFFIX_MAP[dayWeekMonthChoice]
     #--------------
 
 
@@ -100,8 +100,14 @@ def main():
         (DeathRate, {}, daily_df),
         (AverageDailyDeaths, {}, daily_df),
         (ReproductiveNumber, {}, daily_df),
-        (AverageHospitalizations, {"value_col": f"New_hospitalizations{suffix}"}, hosp_df),
-        (AverageHospitalizations, {"value_col": f"New_icu_admissions{suffix}"}, hosp_df),
+        (AverageHospitalizations,
+         {"label": "New Hospitalizations"},
+         hosp_df),
+
+        (AverageHospitalizations,
+         {"label": "New ICU Admissions"},
+         hosp_df),
+
          (VaccinationStats,
           {"value_col": "TOTAL_VACCINATIONS",
            "name_given": "Total Doses",

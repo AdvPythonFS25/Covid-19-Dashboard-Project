@@ -12,7 +12,10 @@ def get_mode(series):
     if not mode_series.empty:
         return mode_series.iloc[0]
     return None
-
+LOOKBACK = {
+    "Last 7 days":  "_last_7days",
+    "Last 28 days": "_last_28days",
+}
 
 class AverageHospitalizations:
 
@@ -57,11 +60,19 @@ class AverageHospitalizations:
                       distribution_plots=self.distribution_plots,
                       timeseries_plot=self.time_series)
 
-    def get_checkbox(self):
-        visible_title = "Hospital / ICU admissions"
-        unique_key = f"{visible_title}_{self.value_col}"
-
-        return summary_stat_checkbox(title=self.value_col,
-                                     selected_column=self.region_or_country,
-                                     summary_stat=self._summary_stat,
-                                     key=unique_key)
+    def get_checkbox(self, label, key_suffix=""):
+        box_key = f"hosp_{label}_{key_suffix}"
+        show = st.sidebar.checkbox(label, key=box_key)
+        if not show:
+            return
+        window = st.sidebar.radio(
+            "Choose window",
+            ("Last 7 days", "Last 28 days"),
+            horizontal=True,
+            key=f"win_{box_key}"
+        )
+        suffix = "_last_7days" if window.startswith("Last 7") else "_last_28days"
+        base = "New_hospitalizations" if "Hosp" in label else "New_icu_admissions"
+        self.value_col = base + suffix
+        # finally render the metric
+        self._summary_stat()
