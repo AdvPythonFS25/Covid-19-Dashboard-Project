@@ -8,7 +8,8 @@ This project aims to create a reporting tool for the Covid-19 outbreak that allo
 
 ## 🛠️ Installation Guide 
 
-To run the dashboard, download the file and run in terminal: 
+
+To run the dashboard, download the file and run in terminal: (1st way) 
 
 ```bash
 cd Covid-19-Dashboard-Project 
@@ -29,6 +30,29 @@ pip install streamlit pandas numpy matplotlib seaborn requests
 ```bash
 streamlit run /src/streamlitApp.py
 ```
+
+To run the dashboard, download the file and run in terminal: (2nd way UNDER DEVELOPMENT MAY NOT WORK):
+
+```bash
+mkdir foldernewlycreated
+```
+
+```bash
+cd ~/Desktop/foldernewlycreated
+```
+
+```bash
+git clone --branch lysanders-branch https://github.com/AdvPythonFS25/Covid-19-Dashboard-Project.git
+```
+
+```bash
+cd Covid-19-Dashboard-Project
+```
+
+```bash
+docker run -p 8501:8501 covid-dashboard-lani
+```
+
 
 **Dependencies/packages used**
 - python
