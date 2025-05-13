@@ -62,22 +62,29 @@ docker run -p 8501:8501 covid-dashboard-lani
 - streamlit
 - pandas
 - numpy
-- seabord
+- seaborn
 
 ## Features 
-📊 **Basic statistics and visualisations**  
+📊 **Statistics calculations and visualisations**  
 
-| Statistic | Description |
+
+
+|Sidebar element / Section | What it means & how it works in our dashboard|
 | :------ | :---- |
-| Death Rate (CFR) | (Cumulative deaths / Cumulative cases) * 100|
-| Rt (Reproduction Number)| Indicator of how contagious a disease is. Average number of new cases that arise from an infected individual at a given time|
-| Daily Cases | Number of daily cases |
-| Daily Deaths | Number of daily deaths |
-| Vaccination Coverage | Number of people vaccinated |
-| Booster Dose Rate | Number of people successful administered with booster dose |
-| Vaccine Authorisations | Type of vaccines authourised by country |
-| Hospitalisations | Number of weekly or monthly hospitalisations |
-| Monthly Deaths by Age Group (countries, region, income) | to be added |
+Pick Start Date / Pick End Date | Lets the user trim **all** datasets to a custom period. Every metric we calculate—from daily cases to vaccinations—reads the start/end dates you choose here.
+Select Country or WHO Region  • Choose at least one region  • Choose at least one country | Geographic filter. • If you pick **one or more WHO regions** we ignore the country picker. • If you pick **one or more countries** we ignore the region picker. All subsequent statistics are grouped by the field that remains active (**Country** or **WHO_region**).
+Granularity (Daily / Weekly / Monthly) | Global time-resolution selector for line-charts that support resampling. Hospital-related metrics ignore **Daily** and always resample to **Last 7 days** or **Last 28 days** using their own radio.
+Daily Cases | Shows: • mean / median daily cases table • distribution plots • time-series resampled to the granularity radio.
+Death Rate | Case-fatality rate (CFR) — computed each day as *(Cumulative deaths / Cumulative cases) × 100* and then averaged over the selected period.
+Daily Deaths | Same layout as *Daily Cases* but for new deaths.
+Rt Number | Instant reproduction number (new cases ÷ previous-day cases) averaged for each country/region, with distribution and time-series.
+New Hospitalizations | Tick-box reveals its own **Last 7 days / Last 28 days** radio. The chosen window decides which column (*…_last_7days* or *…_last_28days*) is analysed. Daily granularity is not offered here.
+New ICU Admissions | Same behaviour as *New Hospitalizations* but uses ICU columns.
+Total Doses | Vaccination snapshot – table & bar-chart of *TOTAL_VACCINATIONS* summed over the period.
+% ≥ 1 Dose | Percentage of population with at least one dose (*PERSONS_VACCINATED_1PLUS_DOSE_PER100*).
+Booster Coverage % | Booster-dose coverage (*PERSONS_BOOSTER_ADD_DOSE_PER100*).
+Deaths by Age and Income | Tick-box adds two multiselects: **Age group** & **WB income level**. Metric then shows deaths aggregated by the age/income slices plus your country/region/date filters.
+Choose window (inside Hospital/ICU sections) | Quick look-back switch: **7-day** versus **28-day** totals. Updates the plots instantly.
 
 ## 👨‍💻 Contributors 
 - Ankitha Kumble
