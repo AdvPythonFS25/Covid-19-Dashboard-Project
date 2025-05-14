@@ -126,7 +126,6 @@ def main():
                                  start_date=start_date,
                                  end_date=end_date)
 
-    # Age and Income part had to do it separately, because of issues that couldn't be solved
     if st.sidebar.checkbox("Deaths by Age and Income"):
         # user pick age group and income group
         ages = sorted(monthly_death_df["Agegroup"].astype(str).unique())
@@ -156,7 +155,7 @@ def main():
         df_ai_filt = filt_obj.get_filtered_df()
         geo_col = filt_obj.choose_country_or_who_region()
 
-        # 4) build the metric and render it *without* its own checkbox
+        # build the metric and render it *without* its own checkbox
         metric = AverageDeathsByAgeIncome(
             filtered_df=df_ai_filt,
             region_or_country=geo_col,
