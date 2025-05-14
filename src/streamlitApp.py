@@ -45,6 +45,7 @@ def main():
                      GLOBAL_MONTHLY_DEATH_DATA_FILE,
                      GLOBAL_VACCINATION_DATA_FILE,
                      GLOBAL_META_DATA_FILE]
+    
     URL_ARR = [URL_global_daily,
                 URL_global_data,
                 URL_global_hosp,
@@ -58,11 +59,11 @@ def main():
     for url, filename in zip(URL_ARR, DATA_FILE_ARR):
         importer = DataImporter(url=url, filename=filename, data_dir=DATA_DIR)
         df = importer.load_data()
-
         importer_objects.append(importer)
         dataframes.append(df)
+
+    # set date time to a datetime for given dataframes 
     daily_df = importer_objects[0].set_date_time(dataframes[0])
-    global_df = dataframes[1]
     hosp_df = importer_objects[2].set_date_time(dataframes[2])
 
     #montly death df doesn not have date column it needs to be created manually and this is done in the
@@ -78,11 +79,6 @@ def main():
     vaccination_df["WHO_region"] = vaccination_df["WHO_region"].str.replace(r"O$", "", regex=True)
     meta_df = dataframes[5]
 
-
-
-    # Set page config
-    st.set_page_config(page_title="COVID-19 Evolution Dashboard", layout="wide")
-
     start_date, end_date = sidebar_date_selector(df=daily_df)
     countries, who_regions = sidebar_location_selector(df=daily_df)
 
@@ -95,11 +91,11 @@ def main():
         (ReproductiveNumber, {}, daily_df),
         (AverageHospitalizations,
          {"label": "New Hospitalizations"},
-         hosp_df),
+         hosp_df), # get stats for New Hospitalizations
 
         (AverageHospitalizations,
          {"label": "New ICU Admissions"},
-         hosp_df),
+         hosp_df), # get stats for New Hospitalizations
 
          (VaccinationStats,
           {"value_col": "TOTAL_VACCINATIONS",

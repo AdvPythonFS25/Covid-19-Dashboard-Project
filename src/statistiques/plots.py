@@ -2,24 +2,30 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
 import streamlit as st
+import numpy as np
 
 
 def plot_distribution(df, value_column, group_column, title_prefix):
 
+
+
     if not group_column:
          st.error('No Country and region selected')
          
-
     unique_entries = df[group_column].nunique()
 
     if unique_entries <= 15:
+        log_value_column = f"log_{value_column}"
+        df[log_value_column] = np.log1p(df[value_column])
+
         # Boxplot/ violin plot Graph
         fig, ax = plt.subplots(2, 1, figsize=(12, 12))
-        sns.boxplot(df, 
-                    x=group_column, y=value_column, 
+        sns.boxenplot(df, 
+                    x=group_column, y=log_value_column, 
                     hue=group_column, 
                     ax=ax[0],
-                    # log_scale=True,
+ #                   showfliers=False,
+ #                   log_scale=True,
                     palette=sns.color_palette("coolwarm", n_colors=8)) 
         
         ax[0].set_title(f"{title_prefix} Boxplot", fontsize=30)
