@@ -62,11 +62,11 @@ def main():
         importer_objects.append(importer)
         dataframes.append(df)
 
-    # set date time to a datetime for given dataframes 
+    # set date time to a datetime object for given dataframes 
     daily_df = importer_objects[0].set_date_time(dataframes[0])
     hosp_df = importer_objects[2].set_date_time(dataframes[2])
 
-    #montly death df doesn not have date column it needs to be created manually and this is done in the
+    #monthly death df does not have date column it needs to be created manually and this is done in the
     # deathbyage.py file
 
     monthly_death_df = importer_objects[3].fix_monthly_death(dataframes[3])
@@ -84,6 +84,7 @@ def main():
 
 
     # there is a case for unexpected arguments, thus used kwargs to handle them
+    #get daily statistics
     daily_statistics = [
         (AverageDailyCases, {}, daily_df),
         (DeathRate, {}, daily_df),
@@ -125,7 +126,7 @@ def main():
                                  start_date=start_date,
                                  end_date=end_date)
 
-    # Age and Income part had to do it separately, because of issues that couldn't be solvesd
+    # Age and Income part had to do it separately, because of issues that couldn't be solved
     if st.sidebar.checkbox("Deaths by Age and Income"):
         # user pick age group and income group
         ages = sorted(monthly_death_df["Agegroup"].astype(str).unique())
@@ -144,7 +145,7 @@ def main():
             st.info("Select at least one **Country** or **WHO Region** to display results.")
             st.stop()
         #Had to implement a daily static in here, because of the way the data is structured and the mechanism work
-        # If it works without problem, please feel welcome to remove it
+        # If it works without problem, please feel free to remove it
         filt_obj = DateAndLocationFilter(
             df=df_ai,
             countries=countries,
@@ -170,10 +171,10 @@ def main():
 def sidebar_date_selector(df):
     st.sidebar.subheader("Select Start and End Dates")
 
-    # Select start and end time for calculation defaults to
-    #   first day of pandemic and WHO official end day
+    # Select start and end time for calculation
+    # defaults to first day of pandemic and WHO official end day, which is the day WHO declared that covid was no longer a global emergency
     start_date = st.sidebar.date_input("Pick Start Date", value=df['Date_reported'].min())
-    end_date = st.sidebar.date_input("Pick End Date", value=df['Date_reported'].max()) # change to official pandemic end date
+    end_date = st.sidebar.date_input("Pick End Date", value=pd.to_datetime('2023-05-05')) 
     
     start_date = pd.to_datetime(start_date)
     end_date = pd.to_datetime(end_date)
