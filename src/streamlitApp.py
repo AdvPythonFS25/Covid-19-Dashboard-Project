@@ -85,15 +85,6 @@ def main():
 
     start_date, end_date = sidebar_date_selector(df=daily_df)
     countries, who_regions = sidebar_location_selector(df=daily_df)
-    #--------------
-    #dayWeekMonthChoice = sidebar_daily_weekly_monthly_selector()
-    #SUFFIX_MAP = {
-    #    "Daily": "_last_7days",
-    #    "Weekly": "_last_7days",
-    #    "Monthly": "_last_28days",  # same column, but you’ll resample in plot
-    #}
-    #suffix = SUFFIX_MAP[dayWeekMonthChoice]
-    #--------------
 
 
     # there is a case for unexpected arguments, thus used kwargs to handle them
@@ -224,47 +215,6 @@ def sidebar_location_selector(df):
         selected_who_regions = []
 
     return selected_countries, selected_who_regions
-
-def rt_number_sidebar_button(df, countries, who_regions, start_date, end_date):
-    if not st.sidebar.checkbox("rt_number"):
-        return # exit if check isnt checked
-    
-    # Filtered instance and get date time filtered df
-    filtered_obj = DateAndLocationFilter(
-        df=df, 
-        countries=countries, 
-        regions=who_regions, 
-        start_date=start_date, 
-        end_date=end_date)
-    
-    filtered_df = filtered_obj.get_filtered_df()
-    selected_column = filtered_obj.choose_country_or_who_region()
-
-    if not selected_column: # dont use 'is none'
-        return  # exit if no country or who region is selected
-    
-    daily_cases_obj = ReproductiveNumber(
-        filtered_df=filtered_df, 
-        region_or_country=selected_column
-        )
-    
-    st.subheader("Average Reproductive Number")
-    
-    col1, col2 = st.columns(2)
-
-    with col1:
-        avg_df = daily_cases_obj.avg_rt_number()
-        st.dataframe(avg_df) 
-
-    with col2:
-        # to be preplace with some graph
-        st.text('some graph showing variation : boxplot/violin plot or overlayed histograms')
-
-    # To be replaced with some other graph
-    avg_df = daily_cases_obj.avg_rt_number()
-    st.dataframe(avg_df)
-
-    st.text('some graph over time : lineplot. fix bug when plotting by region to many things  ')
 
 def daily_stats_checkbox(df, stat_object, countries, who_regions, start_date, end_date, extra_kwargs=None):
         extra_kwargs = extra_kwargs or {}

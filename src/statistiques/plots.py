@@ -74,6 +74,7 @@ def plot_streamlit_time_series_weekly(df, region_or_country, date_col, value_col
                              color=region_or_country,
                              x=date_col, 
                              y=value_col)
+    
 def plot_streamlit_time_series_monthly(df, region_or_country, date_col, value_col, y_label):
     if df is None or df.empty:
         return
@@ -86,6 +87,7 @@ def plot_streamlit_time_series_monthly(df, region_or_country, date_col, value_co
         color=region_or_country,
         x=date_col,
         y=value_col,)
+
 def plot_streamlit_barchart(df,region_or_country, value_col, y_label):
     if df is None or df.empty:
         return

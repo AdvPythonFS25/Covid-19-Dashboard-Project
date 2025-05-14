@@ -12,6 +12,7 @@ def get_mode(series):
     if not mode_series.empty:
         return mode_series.iloc[0]
     return None
+
 LOOKBACK = {
     "Last 7 days":  "_last_7days",
     "Last 28 days": "_last_28days",

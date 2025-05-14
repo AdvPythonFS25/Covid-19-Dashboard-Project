@@ -23,20 +23,6 @@ def layout_without_distribution(title, table, timeseries_plot):
     st.dataframe(table)
     timeseries_plot()
 
-def layout2(title, table, distribution_plots, timeseries_plot):
-        # Layout
-    st.subheader(title)
-    
-    st.dataframe(
-        data=table,
-        column_config={
-            "graphs": st.column_config.Column(distribution_plots)
-            
-        }, 
-        hide_index=True)
-    
-    timeseries_plot()
-
 def summary_stat_checkbox(title, selected_column, summary_stat, key = None):
 
     if not st.sidebar.checkbox(title, key = key or title):
