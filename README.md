@@ -219,7 +219,6 @@ Name: Average, dtype: float64
 ```
 
 
--photo from old graphs-
 
 **Phase 2 Deliverable**
 
@@ -238,11 +237,11 @@ Afterward, we attempted to import our code into Streamlit using a different appr
 	•	We separated all statistics into different classes, with each database having its own class. Public and private functions are named accordingly; if a function name starts with an underscore _, it is intended to be used only within that class.
 	•	DataFrames are filtered using a class defined in a file called country_region_wrapper. This modular approach allows for easy extension, as proper filtering is crucial for topics like these.
 	•	All plots and data outputs are shown on the main page. To support this, we created a reusable layout file shared across the different classes.
-	•	Unit testing is currently unfinished.
+	•	Unit testing is uploaded.
+ 	•	Try and except blocks used in data importation so that if the system can not load the data it will give us an error.
 
 Below is our current UI when the app is running. The code can be run using Docker. We chose Docker to manage containers and dependencies, as this project is still in the development stage. Docker makes it easy to test and explore the project. If desired, the Dockerization setup using Poetry is also provided below.
 
--photo-
 
 |Sidebar element / Section | What it means & how it works in our dashboard|
 | :------ | :---- |
