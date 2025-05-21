@@ -173,7 +173,11 @@ def sidebar_date_selector(df):
     # Select start and end time for calculation
     # defaults to first day of pandemic and WHO official end day, which is the day WHO declared that covid was no longer a global emergency
     start_date = st.sidebar.date_input("Pick Start Date", value=df['Date_reported'].min())
-    end_date = st.sidebar.date_input("Pick End Date", value=pd.to_datetime('2023-05-05')) 
+    end_date = st.sidebar.date_input("Pick End Date", value=pd.to_datetime('2023-05-05'))
+    if pd.Timestamp(start_date) < df['Date_reported'].min():
+        st.warning(f"You are outside the start date range. All statistics will calculated within the date range: {df['Date_reported'].min().date()} to {df['Date_reported'].max().date()}")
+    if pd.Timestamp(end_date) > df['Date_reported'].max():
+        st.warning(f"You are outside the end date range. All statistics will calculated within the date range: {df['Date_reported'].min().date()} to {df['Date_reported'].max().date()}")
     
     start_date = pd.to_datetime(start_date)
     end_date = pd.to_datetime(end_date)
